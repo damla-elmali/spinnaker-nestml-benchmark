@@ -1,0 +1,3 @@
+timestamp,implementation,N,g,p_conn,rate_ext_input,neurons_per_core,t_sim,exc_firing_rate,inh_firing_rate,cv,execution_time,mean_w_ee,mean_w_ei,mean_w_ie,mean_w_ii
+20260902_132446,builtin_neuron_builtin_stdp,50,10.0,0.1,50.0,16,1000,2.1,1.8,0.5481785193872399,7.693497955100611,nan,nan,nan,nan
+20260902_153732,builtin_neuron_builtin_stdp,50,10.0,0.1,50.0,16,1000,2.35,1.8,0.5869271008122557,17.310698193963617,nan,nan,nan,nan

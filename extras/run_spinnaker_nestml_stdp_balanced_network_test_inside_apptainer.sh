@@ -4,11 +4,11 @@
 # This script is intended to be executed inside the Apptainer environment.
 # It prepares the generated model installation path and runs the test with pytest.
 
-mv -v /users/elmali/nestml/spinnaker-target /users/elmali/nestml/spinnaker-target-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)
-mv -v /users/elmali/nestml/spinnaker-install /users/elmali/nestml/spinnaker-install-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NESTML_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+mv -v "$NESTML_ROOT/spinnaker-target" "$NESTML_ROOT/spinnaker-target-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)"
+mv -v "$NESTML_ROOT/spinnaker-install" "$NESTML_ROOT/spinnaker-install-$(date +%Y-%m-%d_%H-%M-%S.%N | cut -b1-23)"
 
 cd "$NESTML_ROOT" || exit 1
 

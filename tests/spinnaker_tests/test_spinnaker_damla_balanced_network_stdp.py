@@ -51,7 +51,6 @@ from analyze_sample_profile import analyze_latest_profiles
 
 # Keep False until the built-in STDP implementation
 # is confirmed.
-use_builtin_stdp = True
 
 
 def compute_cv(spike_train):
@@ -643,63 +642,49 @@ class TestSpiNNakerBalancedNetwork:
         Run reference and NESTML, compare their results,
         save results and generate plots.
         """
+        experiments_to_run = ["builtin_neuron_nestml_stdp"]
+        results = {}
 
-        # if use_builtin_stdp:
-        #     reference = self.run_balanced_network(
-        #         use_nestml_neuron=False,
-        #         use_nestml_synapse=False
-        #     )
-        
-        # else:
-        #     reference = None
+        for experiment in experiments_to_run:
+
+            if experiment == "reference":
+                results["reference"] = self.run_balanced_network(
+                    use_nestml_neuron=False,
+                    use_nestml_synapse=False)
+
+            elif experiment == "builtin_neuron_nestml_stdp":
+                results["builtin_neuron_nestml_stdp"] = self.run_balanced_network(
+                    use_nestml_neuron=False,
+                    use_nestml_synapse=True
+                )
+
+ 
+            elif experiment == "nestml_neuron_builtin_stdp":
+                results["nestml_neuron_builtin_stdp"] = self.run_balanced_network(
+                        use_nestml_neuron=True,
+                        use_nestml_synapse=False
+                    )
+
+            elif experiment == "nestml":
+                results["nestml"] = self.run_balanced_network(
+                    use_nestml_neuron=True,
+                    use_nestml_synapse=True
+                )
 
 
-        builtin_neuron_nestml_stdp = self.run_balanced_network(
-            use_nestml_neuron=False,
-            use_nestml_synapse=True
-        )
-
-
-        # if use_builtin_stdp:
-        #     nestml_neuron_builtin_stdp = self.run_balanced_network(
-        #             use_nestml_neuron=True,
-        #             use_nestml_synapse=False
-        #         )
-        # else:
-        #     nestml_neuron_builtin_stdp = None
-
-
-        # nestml = self.run_balanced_network(
-        #     use_nestml_neuron=True,
-        #     use_nestml_synapse=True
-        # )
-
-        results = {
-            # "reference": reference,
-            "builtin_neuron_nestml_stdp": builtin_neuron_nestml_stdp,
-            # "nestml_neuron_builtin_stdp": nestml_neuron_builtin_stdp,
-            # "nestml": nestml
-        }
+        reference = results.get("reference")
 
         if reference is not None:
-
-            comparisons = compare_results(
-                reference,
-                results
-            )
+            comparisons = compare_results(reference, results)
         else:
             comparisons = {}
 
         print_results(results, comparisons)
-
         save_results_to_csv(results)
 
         if reference is not None:
 
-            save_comparisons_to_csv(
-                reference,
-                comparisons
-            )
+            save_comparisons_to_csv(reference, comparisons)
 
         plot_results(results)
 

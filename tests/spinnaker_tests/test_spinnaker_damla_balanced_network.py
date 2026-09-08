@@ -37,7 +37,6 @@ from analyze_sample_profile import analyze_latest_profiles
 
 
 # import models
-from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
 # get results before test after plot codes  first plot and then test
 # next stdp synapses instead of static ones in here
@@ -251,6 +250,8 @@ class TestSpiNNakerBalancedNetwork:
 
     def run_balanced_network(self, use_nestml):
 
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
+
         t_sim = 1000    # total time to simulator for [ms]
         p_conn = .1    # connection probability
         rate_ext_input = 50.    # external input rate (eta parameter) [s⁻¹]
@@ -446,6 +447,7 @@ class TestSpiNNakerBalancedNetwork:
         Run reference and NESTML, compare their results,
         save results and generate plots.
         """
+        
 
         reference = self.run_balanced_network(False)
         nestml = self.run_balanced_network(True)

@@ -642,7 +642,7 @@ class TestSpiNNakerBalancedNetwork:
         Run reference and NESTML, compare their results,
         save results and generate plots.
         """
-        experiments_to_run = ["builtin_neuron_nestml_stdp"]
+        experiments_to_run = ["reference", "nestml"]
         results = {}
 
         for experiment in experiments_to_run:
@@ -687,6 +687,8 @@ class TestSpiNNakerBalancedNetwork:
             save_comparisons_to_csv(reference, comparisons)
 
         plot_results(results)
+
+        analyze_latest_profiles()
 
         return results, comparisons
 

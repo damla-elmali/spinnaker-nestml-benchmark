@@ -1,0 +1,15 @@
+profile,implementation,use_exp_luts,N,sum_core_activity_percent
+/users/elmali/nestml/reports/2026-09-17-15-16-57-099910/run_1/sample_profile.json,builtin,True,128,28.637999999999998
+/users/elmali/nestml/reports/2026-09-17-15-17-25-547978/run_1/sample_profile.json,nestml,True,128,35.3816
+/users/elmali/nestml/reports/2026-09-17-15-19-35-203778/run_1/sample_profile.json,builtin,False,128,28.639400000000002
+/users/elmali/nestml/reports/2026-09-17-15-19-45-190659/run_1/sample_profile.json,nestml,False,128,40.7942
+/users/elmali/nestml/reports/2026-09-17-15-23-09-427573/run_1/sample_profile.json,builtin,True,256,64.197
+/users/elmali/nestml/reports/2026-09-17-15-23-20-274732/run_1/sample_profile.json,nestml,True,256,88.56619999999998
+/users/elmali/nestml/reports/2026-09-17-15-26-44-919783/run_1/sample_profile.json,builtin,False,256,64.1872
+/users/elmali/nestml/reports/2026-09-17-15-26-56-269214/run_1/sample_profile.json,nestml,False,256,125.7286
+/users/elmali/nestml/reports/2026-09-17-15-32-04-674266/run_1/sample_profile.json,builtin,True,512,164.41199999999998
+/users/elmali/nestml/reports/2026-09-17-15-32-19-009173/run_1/sample_profile.json,nestml,True,512,205.93640000000008
+/users/elmali/nestml/reports/2026-09-17-15-17-25-547978/run_1/sample_profile.json,builtin,False,512,35.3816
+/users/elmali/nestml/reports/2026-09-17-15-36-10-329352/run_1/sample_profile.json,nestml,False,512,396.58899999999994
+/users/elmali/nestml/reports/2026-09-21-11-56-28-310442/run_1/sample_profile.json,builtin,False,512,164.48499999999996
+/users/elmali/nestml/reports/2026-09-21-11-56-42-975799/run_1/sample_profile.json,nestml,False,512,409.60519999999997

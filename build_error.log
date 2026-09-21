@@ -1,0 +1,1879 @@
+renamed '/users/elmali/nestml/spinnaker-target' -> '/users/elmali/nestml/spinnaker-target-2026-09-15_11-37-45.753'
+renamed '/users/elmali/nestml/spinnaker-install' -> '/users/elmali/nestml/spinnaker-install-2026-09-15_11-37-45.786'
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0
+rootdir: /users/elmali/nestml
+
+----------------------------- live log collection ------------------------------
+WARNING  root:__init__.py:39 PyGSL is not available. The stiffness test will be skipped.
+WARNING  root:__init__.py:40 Error when importing: No module named 'pygsl'
+collected 1 item
+
+tests/spinnaker_tests/test_spinnaker_balanced_network.py::TestSpiNNakerBalancedNetwork::test_spinnaker_balanced_network [1,GLOBAL, INFO]: List of files that will be processed:
+[2,GLOBAL, INFO]: /users/elmali/nestml/models/neurons/iaf_psc_exp_with_ignore_neuron.nestml
+[3,GLOBAL, INFO]: /users/elmali/nestml/models/synapses/stdp_additive_synapse.nestml
+[4,GLOBAL, INFO]: Creating target directory: "/users/elmali/nestml/spinnaker-target"
+[5,GLOBAL, INFO]: Target platform code will be installed in directory: "/users/elmali/nestml/spinnaker-install"
+[6,GLOBAL, INFO]: Start processing "/users/elmali/nestml/models/neurons/iaf_psc_exp_with_ignore_neuron.nestml"!
+[7,GLOBAL, INFO]: Start processing "/users/elmali/nestml/models/synapses/stdp_additive_synapse.nestml"!
+[8,stdp_synapse_nestml, INFO, [60:17;60:17]]: Implicit casting from (compatible) type "integer" to "real".
+[9,stdp_synapse_nestml, INFO, [67:21;67:21]]: Implicit casting from (compatible) type "integer" to "real".
+[10,stdp_synapse_nestml, INFO, [70:23;70:23]]: Implicit casting from (compatible) type "integer" to "real".
+[11,stdp_synapse_nestml, INFO, [71:24;71:24]]: Implicit casting from (compatible) type "integer" to "real".
+[12,stdp_synapse_nestml, INFO, [88:22;88:22]]: Implicit casting from (compatible) type "integer" to "real".
+[13,stdp_synapse_nestml, INFO, [97:21;97:21]]: Implicit casting from (compatible) type "integer" to "real".
+[14,iaf_psc_exp_neuron_nestml, INFO, [76:15;76:30]]: Implicit magnitude conversion from mV / ms to pA / pF with factor 1.0 
+[15,stdp_synapse_nestml, WARNING, [65:8;65:17]]: Variable "d" has the same name as a physical unit!
+[16,GLOBAL, INFO]: State variables that will be moved from synapse to header: ['pre_trace']
+[17,GLOBAL, INFO]: Parameters that will be copied from synapse to header: ['tau_tr_pre']
+[18,GLOBAL, INFO]: Moving state var defining equation(s) pre_trace
+[19,GLOBAL, INFO]: Moving state variables for equation(s) pre_trace
+[20,GLOBAL, INFO]: 	Moving statement pre_trace += 1
+[21,GLOBAL, INFO]: 	• Replacing variable pre_trace
+[22,GLOBAL, INFO]: Copying parameters from synapse to header...
+[23,GLOBAL, INFO]: Adding suffix to variables in spike updates
+[24,GLOBAL, INFO]: In synapse: replacing variables with suffixed external variable references
+[25,GLOBAL, INFO]: Successfully constructed presynaptic neuron/synapse pair __pre_header_for__stdp_synapse_nestml, stdp_synapse_nestml
+[26,GLOBAL, INFO]: State variables that will be moved from synapse to header: ['post_trace']
+[27,GLOBAL, INFO]: Parameters that will be copied from synapse to header: ['tau_tr_post']
+[28,GLOBAL, INFO]: Moving state var defining equation(s) post_trace
+[29,GLOBAL, INFO]: Moving state variables for equation(s) post_trace
+[30,GLOBAL, INFO]: 	Moving statement post_trace += 1
+[31,GLOBAL, INFO]: 	• Replacing variable post_trace
+[32,GLOBAL, INFO]: Successfully constructed presynaptic neuron/synapse pair __post_header_for__stdp_synapse_nestml, stdp_synapse_nestml
+Synapse after transformation: # stdp_synapse - Synapse model for spike-timing dependent plasticity
+##################################################################
+# 
+# XXX: changed this into hard coded multiplicative STDP because SpiNNaker is having difficulty with logk and expk
+# Description
+# +++++++++++
+# 
+# stdp_synapse is a synapse with spike-timing dependent plasticity (as defined in [1]_). Here the weight dependence exponent can be set separately for potentiation and depression. Examples:
+# 
+# =================== ==== =============================
+# Multiplicative STDP [2]_ mu_plus = mu_minus = 1
+# Additive STDP       [3]_ mu_plus = mu_minus = 0
+# Guetig STDP         [1]_ mu_plus, mu_minus in [0, 1]
+# Van Rossum STDP     [4]_ mu_plus = 0 mu_minus = 1
+# =================== ==== =============================
+# 
+# Note that in this particular STDP synapse model, the weight is not allowed to be negative. In case an inhibitory STDP synapse needs to be modeled, this model (with weight >= 0 at all times) can be connected to a postsynaptic neuron at its appropriate (inhibitory) input port. The sign of the postsynaptic response is thus handled in the postsynaptic neuron. In principle, an STDP synapse model can be defined that allows for negative weights, but in this case, care should be taken to prevent the sign of the weight from changing during learning, as a biological synapse cannot simply switch from one type to another, say, from glutamatergic to GABAergic.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Guetig et al. (2003) Learning Input Correlations through Nonlinear
+#        Temporally Asymmetric Hebbian Plasticity. Journal of Neuroscience
+# 
+# .. [2] Rubin, J., Lee, D. and Sompolinsky, H. (2001). Equilibrium
+#        properties of temporally asymmetric Hebbian plasticity, PRL
+#        86,364-367
+# 
+# .. [3] Song, S., Miller, K. D. and Abbott, L. F. (2000). Competitive
+#        Hebbian learning through spike-timing-dependent synaptic
+#        plasticity,Nature Neuroscience 3:9,919--926
+# 
+# .. [4] van Rossum, M. C. W., Bi, G-Q and Turrigiano, G. G. (2000).
+#        Stable Hebbian learning from spike timing-dependent
+#        plasticity, Journal of Neuroscience, 20:23,8812--8821
+# 
+# Copyright statement
+# +++++++++++++++++++
+# 
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+# 
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+# 
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+# 
+model stdp_synapse_nestml:
+    state:
+        w real = 1 [[w >= 0]] # Synaptic weight
+    parameters:
+        d ms = 1 ms # Synaptic transmission delay
+        lambda real = 0.01 # (dimensionless) learning rate for causal updates
+        alpha real = 1 # relative learning rate for acausal firing
+        tau_tr_pre ms = 20 ms # time constant of presynaptic trace
+        tau_tr_post ms = 20 ms # time constant of postsynaptic trace
+        mu_plus real = 1 # weight dependence exponent for causal updates
+        mu_minus real = 1 # weight dependence exponent for acausal updates
+        Wmin real = 0.0 [[Wmin >= 0]] # minimum absolute value of synaptic weight
+        Wmax real = 1000.0 [[Wmax >= 0]] # maximum absolute value of synaptic weight
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+    output:
+        spike
+    onReceive(post_spikes):
+        #  potentiate synapse
+        # w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        # w_ real = Wmax * ( w  + (lambda * ( 1. - w ) * pre_trace ))
+        w += lambda * pre_trace__for__stdp_synapse_nestml
+        w = min(Wmax, w)
+    onReceive(pre_spikes):
+        #  depress synapse
+        # w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        # w_ real = Wmax * ( w - ( alpha * lambda * w * post_trace ))
+        w -= lambda * post_trace__for__stdp_synapse_nestml
+        w = max(Wmin, w)
+        # deliver spike to postsynaptic partner
+        emit_spike(w)
+    update:
+        integrate_odes()
+    internals:
+        __h ms = resolution()
+
+Postsynaptic submodel after transformation: model __post_header_for__stdp_synapse_nestml:
+    equations:
+        post_trace__for__stdp_synapse_nestml' = -post_trace__for__stdp_synapse_nestml / tau_tr_post__for__stdp_synapse_nestml
+    state:
+        post_trace__for__stdp_synapse_nestml real = 0.0
+    onReceive(spikes):
+        post_trace__for__stdp_synapse_nestml += 1
+    parameters:
+        tau_tr_post__for__stdp_synapse_nestml ms = 20 ms # time constant of postsynaptic trace
+
+Presynaptic submodel after transformation: model __pre_header_for__stdp_synapse_nestml:
+    equations:
+        pre_trace__for__stdp_synapse_nestml' = -pre_trace__for__stdp_synapse_nestml / tau_tr_pre__for__stdp_synapse_nestml
+    state:
+        pre_trace__for__stdp_synapse_nestml real = 0.0
+    onReceive(spikes):
+        pre_trace__for__stdp_synapse_nestml += 1
+    parameters:
+        tau_tr_pre__for__stdp_synapse_nestml ms = 20 ms # time constant of presynaptic trace
+
+
+-------------------------------- live log setup --------------------------------
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "post_trace__for__stdp_synapse_nestml' = (-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml",
+            "initial_values": {
+                "post_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_post__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [post_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_post__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml, post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols Matrix([[post_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[post_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: post_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[post_trace__for__stdp_synapse_nestml] = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "post_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "post_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_post__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_post__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "post_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "post_trace__for__stdp_synapse_nestml": "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "I_syn_exc' = (-I_syn_exc) / tau_syn_exc",
+            "initial_values": {
+                "I_syn_exc": "0"
+            }
+        },
+        {
+            "expression": "I_syn_inh' = (-I_syn_inh) / tau_syn_inh",
+            "initial_values": {
+                "I_syn_inh": "0"
+            }
+        },
+        {
+            "expression": "V_m' = (-(V_m - E_L)) / tau_m + (I_syn_exc - I_syn_inh) / C_m",
+            "initial_values": {
+                "V_m": "E_L"
+            }
+        },
+        {
+            "expression": "refr_t' = (-1000.) * 1.0 / 1000.0",
+            "initial_values": {
+                "refr_t": "0"
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "C_m": "250",
+        "E_L": "(-70)",
+        "V_reset": "(-70)",
+        "V_th": "(-55)",
+        "refr_T": "2",
+        "tau_m": "10",
+        "tau_syn_exc": "2",
+        "tau_syn_inh": "2"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_exc with defining expression = "(-I_syn_exc) / tau_syn_exc"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols [I_syn_exc])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_exc, derivative_factors = [-1/tau_syn_exc], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_exc" of order 1
+DEBUG    root:shapes.py:349 Shape I_syn_exc: reconstituting expression -I_syn_exc/tau_syn_exc
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_inh with defining expression = "(-I_syn_inh) / tau_syn_inh"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols [I_syn_inh])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_inh]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_inh, derivative_factors = [-1/tau_syn_inh], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_inh" of order 1
+DEBUG    root:shapes.py:349 Shape I_syn_inh: reconstituting expression -I_syn_inh/tau_syn_inh
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape V_m with defining expression = "(-(V_m - E_L)) / tau_m + (I_syn_exc - I_syn_inh) / C_m"
+DEBUG    root:shapes.py:374 Splitting expression (E_L - V_m)/tau_m + (I_syn_exc - I_syn_inh)/C_m (symbols [V_m])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_m]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:163 Created Shape with symbol V_m, derivative_factors = [-1/tau_m], inhom_term = E_L/tau_m, nonlin_term = I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:608 	Returning shape: Shape "V_m" of order 1
+DEBUG    root:shapes.py:349 Shape V_m: reconstituting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape refr_t with defining expression = "(-1000.) * 1.0 / 1000.0"
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols [refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol refr_t, derivative_factors = [0], inhom_term = -1.00000000000000, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "refr_t" of order 1
+DEBUG    root:shapes.py:349 Shape refr_t: reconstituting expression -1.00000000000000
+INFO     root:__init__.py:125 All known variables: [I_syn_exc, I_syn_inh, V_m, refr_t], all parameters used in ODEs: {tau_syn_inh, C_m, tau_syn_exc, E_L, tau_m}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_exc with defining expression = "(-I_syn_exc) / tau_syn_exc"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_exc, derivative_factors = [-1/tau_syn_exc], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_exc" of order 1
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_inh with defining expression = "(-I_syn_inh) / tau_syn_inh"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc, I_syn_inh])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [-1/tau_syn_inh], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_inh, derivative_factors = [-1/tau_syn_inh], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_inh" of order 1
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape V_m with defining expression = "(-(V_m - E_L)) / tau_m + (I_syn_exc - I_syn_inh) / C_m"
+DEBUG    root:shapes.py:374 Splitting expression (E_L - V_m)/tau_m + (I_syn_exc - I_syn_inh)/C_m (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc, I_syn_inh, V_m])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[1/C_m], [-1/C_m], [-1/tau_m], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol V_m, derivative_factors = [-1/tau_m], inhom_term = E_L/tau_m, nonlin_term = I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:608 	Returning shape: Shape "V_m" of order 1
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape refr_t with defining expression = "(-1000.) * 1.0 / 1000.0"
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [0], [0], [0], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol refr_t, derivative_factors = [0], inhom_term = -1.00000000000000, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "refr_t" of order 1
+DEBUG    root:shapes.py:349 Shape I_syn_exc: reconstituting expression -I_syn_exc/tau_syn_exc
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape I_syn_inh: reconstituting expression -I_syn_inh/tau_syn_inh
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [-1/tau_syn_inh], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape V_m: reconstituting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:374 Splitting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[1/C_m], [-1/C_m], [-1/tau_m], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape refr_t: reconstituting expression -1.00000000000000
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]), A = Matrix([[-1/tau_syn_exc, 0, 0, 0], [0, -1/tau_syn_inh, 0, 0], [1/C_m, -1/C_m, -1/tau_m, 0], [0, 0, 0, 0]]), b = Matrix([[0], [0], [E_L/tau_m], [-1.00000000000000]]), c = Matrix([[0], [0], [0], [0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape I_syn_exc: reconstituting expression -I_syn_exc/tau_syn_exc
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape I_syn_inh: reconstituting expression -I_syn_inh/tau_syn_inh
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [-1/tau_syn_inh], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape V_m: reconstituting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:374 Splitting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[1/C_m], [-1/C_m], [-1/tau_m], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape refr_t: reconstituting expression -1.00000000000000
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]])
+DEBUG    root:__init__.py:235 A = Matrix([
+[-1/tau_syn_exc,              0,        0, 0],
+[             0, -1/tau_syn_inh,        0, 0],
+[         1/C_m,         -1/C_m, -1/tau_m, 0],
+[             0,              0,        0, 0]])
+DEBUG    root:__init__.py:236 b = Matrix([[0], [0], [E_L/tau_m], [-1.00000000000000]])
+DEBUG    root:__init__.py:237 c = Matrix([[0], [0], [0], [0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: I_syn_exc, I_syn_inh, V_m, refr_t
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]), A = Matrix([[-1/tau_syn_exc, 0, 0, 0], [0, -1/tau_syn_inh, 0, 0], [1/C_m, -1/C_m, -1/tau_m, 0], [0, 0, 0, 0]]), b = Matrix([[0], [0], [E_L/tau_m], [-1.00000000000000]]), c = Matrix([[0], [0], [0], [0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+WARNING  root:system_of_shapes.py:247 Under certain conditions, the propagator matrix is singular (contains infinities).
+WARNING  root:system_of_shapes.py:248 List of all conditions that result in a division by zero:
+WARNING  root:system_of_shapes.py:250 	tau_m = tau_syn_exc
+WARNING  root:system_of_shapes.py:250 	tau_m = tau_syn_inh
+DEBUG    root:system_of_shapes.py:308 update_expr[I_syn_exc] = I_syn_exc*__P__I_syn_exc__I_syn_exc
+DEBUG    root:system_of_shapes.py:308 update_expr[I_syn_inh] = I_syn_inh*__P__I_syn_inh__I_syn_inh
+DEBUG    root:singularity_detection.py:172 Checking for singularities (divisions by zero) in the inhomogeneous part of the update equations...
+DEBUG    root:system_of_shapes.py:308 update_expr[V_m] = -E_L*__P__V_m__V_m + E_L + I_syn_exc*__P__V_m__I_syn_exc + I_syn_inh*__P__V_m__I_syn_inh + V_m*__P__V_m__V_m
+DEBUG    root:system_of_shapes.py:308 update_expr[refr_t] = __P__refr_t__refr_t*refr_t - 1.0*__h
+WARNING  root:__init__.py:379 Not preserving expression for variable "I_syn_exc" as it is solved by propagator solver
+WARNING  root:__init__.py:379 Not preserving expression for variable "I_syn_inh" as it is solved by propagator solver
+WARNING  root:__init__.py:379 Not preserving expression for variable "V_m" as it is solved by propagator solver
+WARNING  root:__init__.py:379 Not preserving expression for variable "refr_t" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "I_syn_exc": "0",
+            "I_syn_inh": "0",
+            "V_m": "E_L",
+            "refr_t": "0"
+        },
+        "parameters": {
+            "C_m": "250.000000000000",
+            "E_L": "-70.0000000000000",
+            "tau_m": "10.0000000000000",
+            "tau_syn_exc": "2.00000000000000",
+            "tau_syn_inh": "2.00000000000000"
+        },
+        "propagators": {
+            "__P__I_syn_exc__I_syn_exc": "exp(-__h/tau_syn_exc)",
+            "__P__I_syn_inh__I_syn_inh": "exp(-__h/tau_syn_inh)",
+            "__P__V_m__I_syn_exc": "tau_m*tau_syn_exc*(-exp(__h/tau_m) + exp(__h/tau_syn_exc))*exp(-__h*(tau_m + tau_syn_exc)/(tau_m*tau_syn_exc))/(C_m*(tau_m - tau_syn_exc))",
+            "__P__V_m__I_syn_inh": "tau_m*tau_syn_inh*(exp(__h/tau_m) - exp(__h/tau_syn_inh))*exp(-__h*(tau_m + tau_syn_inh)/(tau_m*tau_syn_inh))/(C_m*(tau_m - tau_syn_inh))",
+            "__P__V_m__V_m": "exp(-__h/tau_m)",
+            "__P__refr_t__refr_t": "1"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "I_syn_exc",
+            "I_syn_inh",
+            "V_m",
+            "refr_t"
+        ],
+        "update_expressions": {
+            "I_syn_exc": "I_syn_exc*__P__I_syn_exc__I_syn_exc",
+            "I_syn_inh": "I_syn_inh*__P__I_syn_inh__I_syn_inh",
+            "V_m": "-E_L*__P__V_m__V_m + E_L + I_syn_exc*__P__V_m__I_syn_exc + I_syn_inh*__P__V_m__I_syn_inh + V_m*__P__V_m__V_m",
+            "refr_t": "__P__refr_t__refr_t*refr_t - 1.0*__h"
+        }
+    }
+]
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "pre_trace__for__stdp_synapse_nestml' = (-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml",
+            "initial_values": {
+                "pre_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_pre__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [pre_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_pre__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml, pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols Matrix([[pre_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[pre_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: pre_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[pre_trace__for__stdp_synapse_nestml] = __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "pre_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "pre_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_pre__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_pre__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "pre_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "pre_trace__for__stdp_synapse_nestml": "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "post_trace__for__stdp_synapse_nestml' = (-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml",
+            "initial_values": {
+                "post_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_post__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [post_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_post__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml, post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols Matrix([[post_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[post_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: post_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[post_trace__for__stdp_synapse_nestml] = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "post_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "post_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_post__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_post__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "post_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "post_trace__for__stdp_synapse_nestml": "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+XXXXXXX update expr = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml * post_trace__for__stdp_synapse_nestml
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "pre_trace__for__stdp_synapse_nestml' = (-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml",
+            "initial_values": {
+                "pre_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_pre__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [pre_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_pre__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml, pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols Matrix([[pre_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[pre_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: pre_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[pre_trace__for__stdp_synapse_nestml] = __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "pre_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "pre_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_pre__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_pre__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "pre_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "pre_trace__for__stdp_synapse_nestml": "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+XXXXXXX update expr = __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml * pre_trace__for__stdp_synapse_nestml
+SpiNNakerCodeGenerator::generate_code(): model = __post_header_for__stdp_synapse_nestml
+SpiNNakerCodeGenerator::generate_code(): model = iaf_psc_exp_neuron_nestml
+[33,GLOBAL, INFO]: Starting code generation for model "iaf_psc_exp_neuron_nestml"
+[34,iaf_psc_exp_neuron_nestml, INFO, [64:0;119:0]]: Starts processing of the model "iaf_psc_exp_neuron_nestml"
+[35,GLOBAL, WARNING]: The NEST Simulator version cannot be parsed by semver: <not available>
+[36,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/iaf_psc_exp_neuron_nestml_impl.h
+[37,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/Makefile_iaf_psc_exp_neuron_nestml_impl
+[38,iaf_psc_exp_neuron_nestml, INFO, [64:0;119:0]]: Successfully generated code for the model: "iaf_psc_exp_neuron_nestml" in: "/users/elmali/nestml/spinnaker-target" !
+[39,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/Makefile_root
+[40,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/Makefile_models
+[41,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/extra.mk
+[42,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/extra_neuron.mk
+[43,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/extra_synapse.mk
+[44,GLOBAL, INFO]: Successfully generated NEST module code in "/users/elmali/nestml/spinnaker-target" !
+[45,iaf_psc_exp_neuron_nestml, INFO, [64:0;119:0]]: Starts processing of the model "iaf_psc_exp_neuron_nestml"
+'stdp_synapse_nestml_impl.c' -> '/users/elmali/nestml/spinnaker-install/c_models/src/my_models/implementations/stdp_synapse_nestml_impl.c'
+'stdp_synapse_nestml_impl.h' -> '/users/elmali/nestml/spinnaker-install/c_models/src/my_models/implementations/stdp_synapse_nestml_impl.h'
+'iaf_psc_exp_neuron_nestml_impl.h' -> '/users/elmali/nestml/spinnaker-install/c_models/src/my_models/implementations/iaf_psc_exp_neuron_nestml_impl.h'
+'__init__.py' -> '/users/elmali/nestml/spinnaker-install/python_models8/__init__.py'
+'iaf_psc_exp_neuron_nestml.py' -> '/users/elmali/nestml/spinnaker-install/python_models8/neuron/builds/iaf_psc_exp_neuron_nestml.py'
+'__init__.py' -> '/users/elmali/nestml/spinnaker-install/python_models8/neuron/builds/__init__.py'
+'/users/elmali/nestml/spinnaker-target/iaf_psc_exp_neuron_nestml_impl.py' -> '/users/elmali/nestml/spinnaker-install/python_models8/neuron/implementations/iaf_psc_exp_neuron_nestml_impl.py'
+'/users/elmali/nestml/spinnaker-target/stdp_synapse_nestml_impl.py' -> '/users/elmali/nestml/spinnaker-install/python_models8/neuron/implementations/stdp_synapse_nestml_impl.py'
+'/users/elmali/nestml/spinnaker-target/iaf_psc_exp_neuron_nestml_chain_example.py' -> '/users/elmali/nestml/spinnaker-install/examples/iaf_psc_exp_neuron_nestml_chain_example.py'
+'Makefile_root' -> '/users/elmali/nestml/spinnaker-install/c_models/Makefile'
+'Makefile_models' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/Makefile'
+'extra.mk' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/extra.mk'
+'extra_neuron.mk' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/extra_neuron.mk'
+'extra_synapse.mk' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/extra_synapse.mk'
+'Makefile_models' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/models/Makefile'
+'Makefile_root' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/root/Makefile'
+'Makefile_iaf_psc_exp_neuron_nestml_impl' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/iaf_psc_exp_neuron_nestml_impl/Makefile'
+'Makefile_stdp_synapse_nestml_impl' -> '/users/elmali/nestml/spinnaker-install/c_models/makefiles/stdp_synapse_nestml_impl/Makefile'
+'stdp_synapse_nestml_impl.c' -> '/users/elmali/nestml/spinnaker-install/c_models/src/my_models/implementations/stdp_synapse_nestml_impl.c'
+for dir in iaf_psc_exp_neuron_nestml_impl stdp_synapse_nestml_impl; do \
+	make -C $dir; \
+done
+make[1]: Entering directory '/users/elmali/nestml/spinnaker-install/c_models/makefiles/iaf_psc_exp_neuron_nestml_impl'
+python3 -m spinn_utilities.make_tools.converter /users/elmali/nestml/spinnaker-install/c_models/src/ / /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries/ S
+# neuron.o
+arm-none-eabi-gcc -c -mthumb-interwork -march=armv5te -std=gnu99 -ffreestanding -I /home/spinnaker/source/spinnaker_tools/include -DLOG_LEVEL=LOG_INFO -I/users/elmali/nestml/spinnaker-install/c_models/src -I /home/spinnaker/source/SpiNNFrontEndCommon/c_common/front_end_common_lib/include -Wall -Wextra -Wold-style-definition -DPRODUCTION_CODE -DPROFILER_DISABLED -Ofast -DAPPLICATION_NAME_HASH=0x3c2d2787  -I 	/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/  -I 	/ -I /home/spinnaker/source/spinn_common/include -g -include   /my_models/implementations/iaf_psc_exp_neuron_nestml_impl.h   -o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/neuron/neuron.o /home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/neuron.c
+In file included from <command-line>:
+/my_models/implementations/iaf_psc_exp_neuron_nestml_impl.h: In function 'on_receive_block_exc_spikes':
+/my_models/implementations/iaf_psc_exp_neuron_nestml_impl.h:145:100: warning: unused parameter 'parameter' [-Wunused-parameter]
+  145 | void on_receive_block_exc_spikes(neuron_state_t *state, neuron_input_t *input, neuron_parameter_t *parameter)
+      |                                                                                ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+In file included from <command-line>:
+/my_models/implementations/iaf_psc_exp_neuron_nestml_impl.h: In function 'on_receive_block_inh_spikes':
+/my_models/implementations/iaf_psc_exp_neuron_nestml_impl.h:168:100: warning: unused parameter 'parameter' [-Wunused-parameter]
+  168 | void on_receive_block_inh_spikes(neuron_state_t *state, neuron_input_t *input, neuron_parameter_t *parameter)
+      |                                                                                ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+In file included from /home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/neuron.c:24:
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h: In function 'current_source_initialise':
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:58:49: warning: unused parameter 'cs_address' [-Wunused-parameter]
+   58 | static bool current_source_initialise(address_t cs_address, uint32_t n_neurons) {
+      |                                       ~~~~~~~~~~^~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:58:70: warning: unused parameter 'n_neurons' [-Wunused-parameter]
+   58 | static bool current_source_initialise(address_t cs_address, uint32_t n_neurons) {
+      |                                                             ~~~~~~~~~^~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h: In function 'current_source_load_parameters':
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:149:54: warning: unused parameter 'cs_address' [-Wunused-parameter]
+  149 | static bool current_source_load_parameters(address_t cs_address) {
+      |                                            ~~~~~~~~~~^~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h: In function 'current_source_get_offset':
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:207:55: warning: unused parameter 'time' [-Wunused-parameter]
+  207 | static inline REAL current_source_get_offset(uint32_t time, uint32_t neuron_index) {
+      |                                              ~~~~~~~~~^~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:207:70: warning: unused parameter 'neuron_index' [-Wunused-parameter]
+  207 | static inline REAL current_source_get_offset(uint32_t time, uint32_t neuron_index) {
+      |                                                             ~~~~~~~~~^~~~~~~~~~~~
+At top level:
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:47:34: warning: 'neuron_current_source' defined but not used [-Wunused-variable]
+   47 | static neuron_current_source_t **neuron_current_source;
+      |                                  ^~~~~~~~~~~~~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:45:17: warning: 'n_neurons_on_core' defined but not used [-Wunused-variable]
+   45 | static uint32_t n_neurons_on_core;
+      |                 ^~~~~~~~~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:43:17: warning: 'n_noisy_sources' defined but not used [-Wunused-variable]
+   43 | static uint32_t n_noisy_sources;
+      |                 ^~~~~~~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:42:17: warning: 'n_step_sources' defined but not used [-Wunused-variable]
+   42 | static uint32_t n_step_sources;
+      |                 ^~~~~~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:41:17: warning: 'n_ac_sources' defined but not used [-Wunused-variable]
+   41 | static uint32_t n_ac_sources;
+      |                 ^~~~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:40:17: warning: 'n_dc_sources' defined but not used [-Wunused-variable]
+   40 | static uint32_t n_dc_sources;
+      |                 ^~~~~~~~~~~~
+/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/neuron/current_sources/current_source.h:39:17: warning: 'n_current_sources' defined but not used [-Wunused-variable]
+   39 | static uint32_t n_current_sources;
+      |                 ^~~~~~~~~~~~~~~~~
+# SYNAPSE_DYNAMICS_O stdp
+arm-none-eabi-gcc -c -mthumb-interwork -march=armv5te -std=gnu99 -ffreestanding -I /home/spinnaker/source/spinnaker_tools/include -DLOG_LEVEL=LOG_INFO -I/users/elmali/nestml/spinnaker-install/c_models/src -I /home/spinnaker/source/SpiNNFrontEndCommon/c_common/front_end_common_lib/include -Wall -Wextra -Wold-style-definition -DPRODUCTION_CODE -DPROFILER_DISABLED -Ofast -DAPPLICATION_NAME_HASH=0x3c2d2787  -I 	/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/  -I 	/ -I /home/spinnaker/source/spinn_common/include -g  -o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/my_models/implementations/stdp_synapse_nestml_impl.o /my_models/implementations/stdp_synapse_nestml_impl.c
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'synapse_structure_get_update_state':
+/my_models/implementations/stdp_synapse_nestml_impl.h:62:32: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   62 | #define TYPECAST_TO_ACCUM(x) *((accum*)(&(x)))
+      |                               ~^~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:177:22: note: in expansion of macro 'TYPECAST_TO_ACCUM'
+  177 |     update_state.w = TYPECAST_TO_ACCUM(synaptic_word.w);
+      |                      ^~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h: At top level:
+/my_models/implementations/stdp_synapse_nestml_impl.h:271:62: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+  271 | synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word, const size_t synapse_word_len) {
+      |                                                              ^~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'synapse_word_to_state_t':
+/my_models/implementations/stdp_synapse_nestml_impl.h:62:32: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   62 | #define TYPECAST_TO_ACCUM(x) *((accum*)(&(x)))
+      |                               ~^~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:273:13: note: in expansion of macro 'TYPECAST_TO_ACCUM'
+  273 |        .w = TYPECAST_TO_ACCUM(synapse_word->w),    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
+      |             ^~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:271:96: warning: unused parameter 'synapse_word_len' [-Wunused-parameter]
+  271 | synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word, const size_t synapse_word_len) {
+      |                                                                                   ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'state_t_to_synapse_word':
+/my_models/implementations/stdp_synapse_nestml_impl.h:63:35: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   63 | #define TYPECAST_TO_UINT32_T(x) *((uint32_t*)(&(x)))
+      |                                  ~^~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:280:23: note: in expansion of macro 'TYPECAST_TO_UINT32_T'
+  280 |     synapse_word->w = TYPECAST_TO_UINT32_T(state->w);    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
+      |                       ^~~~~~~~~~~~~~~~~~~~
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.h:279:103: warning: unused parameter 'synapse_word_len' [-Wunused-parameter]
+  279 | void state_t_to_synapse_word(const synapse_state_t *state, synapse_word_t *synapse_word, const size_t synapse_word_len) {
+      |                                                                                          ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'print_delayed_window_events':
+/my_models/implementations/stdp_synapse_nestml_impl.h:513:37: warning: unused parameter 'post_event_history' [-Wunused-parameter]
+  513 |         const post_event_history_t *post_event_history,
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:514:18: warning: unused parameter 'begin_time' [-Wunused-parameter]
+  514 |         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
+      |         ~~~~~~~~~^~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:514:39: warning: unused parameter 'end_time' [-Wunused-parameter]
+  514 |         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
+      |                              ~~~~~~~~~^~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:514:58: warning: unused parameter 'delay_dendritic' [-Wunused-parameter]
+  514 |         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
+      |                                                 ~~~~~~~~~^~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'synapse_dynamics_initialise':
+/my_models/implementations/stdp_synapse_nestml_impl.c:184:27: warning: initialization of 'address_t' {aka 'long unsigned int *'} from incompatible pointer type 'plasticity_weight_region_data_t *' [-Wincompatible-pointer-types]
+  184 |   address_t lut_address = config;
+      |                           ^~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:115:10: warning: unused variable '_string_buf' [-Wunused-variable]
+  115 |     char _string_buf[20];
+      |          ^~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'update_internal_state_':
+/my_models/implementations/stdp_synapse_nestml_impl.c:259:53: warning: unused parameter 'state' [-Wunused-parameter]
+  259 | static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uint32_t timestep) {
+      |                                    ~~~~~~~~~~~~~~~~~^~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:259:69: warning: unused parameter 't_start' [-Wunused-parameter]
+  259 | static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uint32_t timestep) {
+      |                                                            ~~~~~~~~~^~~~~~~
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'process_plastic_synapse':
+/my_models/implementations/stdp_synapse_nestml_impl.h:63:35: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   63 | #define TYPECAST_TO_UINT32_T(x) *((uint32_t*)(&(x)))
+      |                                  ~^~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:485:23: note: in expansion of macro 'TYPECAST_TO_UINT32_T'
+  485 |      int32_t weight = TYPECAST_TO_UINT32_T(state.w);   // XXX: TODO: the variable name ``w`` is hard-coded here
+      |                       ^~~~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:360:14: warning: variable 'post_delay' set but not used [-Wunused-but-set-variable]
+  360 |     uint32_t post_delay = s.delay_dendritic;
+      |              ^~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:350:15: warning: unused parameter 'pre_trace__for__stdp_synapse_nestml' [-Wunused-parameter]
+  350 |         accum pre_trace__for__stdp_synapse_nestml,
+      |               ^
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'print_low_level_synaptic_row_data':
+/my_models/implementations/stdp_synapse_nestml_impl.c:515:68: warning: unused parameter 'plastic_region_address' [-Wunused-parameter]
+  515 | void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_region_address,
+      |                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:516:66: warning: unused parameter 'fixed_region' [-Wunused-parameter]
+  516 |                                        synapse_row_fixed_part_t *fixed_region) {
+      |                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+mkdir -p /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/
+PERL5LIB=/home/spinnaker/source/spinnaker_tools/tools:$PERL5LIB /home/spinnaker/source/spinnaker_tools/tools/mkbuild iaf_psc_exp_neuron_nestml_impl > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl_build.c
+arm-none-eabi-gcc -c -mthumb-interwork -march=armv5te -std=gnu99 -ffreestanding -I /home/spinnaker/source/spinnaker_tools/include -I/users/elmali/nestml/spinnaker-install/c_models/src -I /home/spinnaker/source/SpiNNFrontEndCommon/c_common/front_end_common_lib/include -Wall -Wextra -Wold-style-definition -DPRODUCTION_CODE -DPROFILER_DISABLED -Ofast -DAPPLICATION_NAME_HASH=0x3c2d2787  -I 	/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/  -I 	/ -I /home/spinnaker/source/spinn_common/include -g   -c -o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl_build.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl_build.c
+# spinnaker_tools.mk elf
+arm-none-eabi-gcc -T/home/spinnaker/source/spinnaker_tools/tools/sark.lnk -Wl,-e,cpu_reset -Wl,-static -ffreestanding -fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,--use-blx -nostartfiles -static -L/home/spinnaker/source/SpiNNFrontEndCommon/c_common/front_end_common_lib/lib -L/home/spinnaker/source/spinn_common/lib -L /home/spinnaker/source/spinnaker_tools/lib /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/neuron/c_main.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/neuron/synapses.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/neuron/neuron.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/neuron/spike_processing.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/neuron/population_table/population_table_binary_search_impl.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/my_models/implementations/stdp_synapse_nestml_impl.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/neuron/structural_plasticity/synaptogenesis_dynamics_static_impl.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl_build.o -lspinn_frontend_common -lspinn_common /home/spinnaker/source/spinnaker_tools/lib/libspin1_api.a -o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.elf
+arm-none-eabi-objdump -dxt > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.txt /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.elf
+arm-none-eabi-objcopy -O binary -j RO_DATA -j EX_DATA /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.elf /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RO_DATA.bin
+arm-none-eabi-objcopy -O binary -j RW_DATA /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.elf /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RW_DATA.bin
+ls -l /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RO_DATA.bin
+-rwxrwx--- 1 elmali csn 30548 Sep 15 11:38 /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RO_DATA.bin
+PERL5LIB=/home/spinnaker/source/spinnaker_tools/tools:$PERL5LIB /home/spinnaker/source/spinnaker_tools/tools/mkbin /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RO_DATA.bin /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RW_DATA.bin > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.bin
+rm -f /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RO_DATA.bin /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/RW_DATA.bin
+arm-none-eabi-nm /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.elf > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.nm
+mkdir -p /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries/
+PERL5LIB=/home/spinnaker/source/spinnaker_tools/tools:$PERL5LIB /home/spinnaker/source/spinnaker_tools/tools/mkaplx /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.nm | cat - /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.bin > /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries/iaf_psc_exp_neuron_nestml_impl.aplx
+rm /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.bin /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl.nm /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl_build.c /home/spinnaker/source/sPyNNaker/neural_modelling/builds/iaf_psc_exp_neuron_nestml_impl/iaf_psc_exp_neuron_nestml_impl_build.o
+make[1]: Leaving directory '/users/elmali/nestml/spinnaker-install/c_models/makefiles/iaf_psc_exp_neuron_nestml_impl'
+make[1]: Entering directory '/users/elmali/nestml/spinnaker-install/c_models/makefiles/stdp_synapse_nestml_impl'
+python3 -m spinn_utilities.make_tools.converter /users/elmali/nestml/spinnaker-install/c_models/src/ / /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries/ S
+# SYNAPSE_DYNAMICS_O stdp
+arm-none-eabi-gcc -c -mthumb-interwork -march=armv5te -std=gnu99 -ffreestanding -I /home/spinnaker/source/spinnaker_tools/include -DLOG_LEVEL=LOG_INFO -I/users/elmali/nestml/spinnaker-install/c_models/src -I /home/spinnaker/source/SpiNNFrontEndCommon/c_common/front_end_common_lib/include -Wall -Wextra -Wold-style-definition -DPRODUCTION_CODE -DPROFILER_DISABLED -Ofast -DAPPLICATION_NAME_HASH=0x711dd301  -I 	/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/  -I 	/ -I /home/spinnaker/source/spinn_common/include -g  -o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/my_models/implementations/stdp_synapse_nestml_impl.o /my_models/implementations/stdp_synapse_nestml_impl.c
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'synapse_structure_get_update_state':
+/my_models/implementations/stdp_synapse_nestml_impl.h:62:32: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   62 | #define TYPECAST_TO_ACCUM(x) *((accum*)(&(x)))
+      |                               ~^~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:177:22: note: in expansion of macro 'TYPECAST_TO_ACCUM'
+  177 |     update_state.w = TYPECAST_TO_ACCUM(synaptic_word.w);
+      |                      ^~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h: At top level:
+/my_models/implementations/stdp_synapse_nestml_impl.h:271:62: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+  271 | synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word, const size_t synapse_word_len) {
+      |                                                              ^~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'synapse_word_to_state_t':
+/my_models/implementations/stdp_synapse_nestml_impl.h:62:32: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   62 | #define TYPECAST_TO_ACCUM(x) *((accum*)(&(x)))
+      |                               ~^~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:273:13: note: in expansion of macro 'TYPECAST_TO_ACCUM'
+  273 |        .w = TYPECAST_TO_ACCUM(synapse_word->w),    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
+      |             ^~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:271:96: warning: unused parameter 'synapse_word_len' [-Wunused-parameter]
+  271 | synapse_state_t synapse_word_to_state_t(const synapse_word_t const *synapse_word, const size_t synapse_word_len) {
+      |                                                                                   ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'state_t_to_synapse_word':
+/my_models/implementations/stdp_synapse_nestml_impl.h:63:35: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   63 | #define TYPECAST_TO_UINT32_T(x) *((uint32_t*)(&(x)))
+      |                                  ~^~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:280:23: note: in expansion of macro 'TYPECAST_TO_UINT32_T'
+  280 |     synapse_word->w = TYPECAST_TO_UINT32_T(state->w);    // use the typecast to copy bit-for-bit. If we don't do this, the compiler will do a data conversion, discarding and shifting the fractional bits.
+      |                       ^~~~~~~~~~~~~~~~~~~~
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.h:279:103: warning: unused parameter 'synapse_word_len' [-Wunused-parameter]
+  279 | void state_t_to_synapse_word(const synapse_state_t *state, synapse_word_t *synapse_word, const size_t synapse_word_len) {
+      |                                                                                          ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.h: In function 'print_delayed_window_events':
+/my_models/implementations/stdp_synapse_nestml_impl.h:513:37: warning: unused parameter 'post_event_history' [-Wunused-parameter]
+  513 |         const post_event_history_t *post_event_history,
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:514:18: warning: unused parameter 'begin_time' [-Wunused-parameter]
+  514 |         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
+      |         ~~~~~~~~~^~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:514:39: warning: unused parameter 'end_time' [-Wunused-parameter]
+  514 |         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
+      |                              ~~~~~~~~~^~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.h:514:58: warning: unused parameter 'delay_dendritic' [-Wunused-parameter]
+  514 |         uint32_t begin_time, uint32_t end_time, uint32_t delay_dendritic) {
+      |                                                 ~~~~~~~~~^~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'synapse_dynamics_initialise':
+/my_models/implementations/stdp_synapse_nestml_impl.c:184:27: warning: initialization of 'address_t' {aka 'long unsigned int *'} from incompatible pointer type 'plasticity_weight_region_data_t *' [-Wincompatible-pointer-types]
+  184 |   address_t lut_address = config;
+      |                           ^~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:115:10: warning: unused variable '_string_buf' [-Wunused-variable]
+  115 |     char _string_buf[20];
+      |          ^~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'update_internal_state_':
+/my_models/implementations/stdp_synapse_nestml_impl.c:259:53: warning: unused parameter 'state' [-Wunused-parameter]
+  259 | static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uint32_t timestep) {
+      |                                    ~~~~~~~~~~~~~~~~~^~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:259:69: warning: unused parameter 't_start' [-Wunused-parameter]
+  259 | static void update_internal_state_(synapse_state_t *state, uint32_t t_start, uint32_t timestep) {
+      |                                                            ~~~~~~~~~^~~~~~~
+In file included from /my_models/implementations/stdp_synapse_nestml_impl.c:24:
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'process_plastic_synapse':
+/my_models/implementations/stdp_synapse_nestml_impl.h:63:35: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   63 | #define TYPECAST_TO_UINT32_T(x) *((uint32_t*)(&(x)))
+      |                                  ~^~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:485:23: note: in expansion of macro 'TYPECAST_TO_UINT32_T'
+  485 |      int32_t weight = TYPECAST_TO_UINT32_T(state.w);   // XXX: TODO: the variable name ``w`` is hard-coded here
+      |                       ^~~~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:360:14: warning: variable 'post_delay' set but not used [-Wunused-but-set-variable]
+  360 |     uint32_t post_delay = s.delay_dendritic;
+      |              ^~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:350:15: warning: unused parameter 'pre_trace__for__stdp_synapse_nestml' [-Wunused-parameter]
+  350 |         accum pre_trace__for__stdp_synapse_nestml,
+      |               ^
+/my_models/implementations/stdp_synapse_nestml_impl.c: In function 'print_low_level_synaptic_row_data':
+/my_models/implementations/stdp_synapse_nestml_impl.c:515:68: warning: unused parameter 'plastic_region_address' [-Wunused-parameter]
+  515 | void print_low_level_synaptic_row_data(synapse_row_plastic_data_t *plastic_region_address,
+      |                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+/my_models/implementations/stdp_synapse_nestml_impl.c:516:66: warning: unused parameter 'fixed_region' [-Wunused-parameter]
+  516 |                                        synapse_row_fixed_part_t *fixed_region) {
+      |                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+mkdir -p /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/
+PERL5LIB=/home/spinnaker/source/spinnaker_tools/tools:$PERL5LIB /home/spinnaker/source/spinnaker_tools/tools/mkbuild stdp_synapse_nestml_impl > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl_build.c
+arm-none-eabi-gcc -c -mthumb-interwork -march=armv5te -std=gnu99 -ffreestanding -I /home/spinnaker/source/spinnaker_tools/include -I/users/elmali/nestml/spinnaker-install/c_models/src -I /home/spinnaker/source/SpiNNFrontEndCommon/c_common/front_end_common_lib/include -Wall -Wextra -Wold-style-definition -DPRODUCTION_CODE -DPROFILER_DISABLED -Ofast -DAPPLICATION_NAME_HASH=0x711dd301  -I 	/home/spinnaker/source/sPyNNaker/neural_modelling/modified_src/  -I 	/ -I /home/spinnaker/source/spinn_common/include -g   -c -o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl_build.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl_build.c
+# spinnaker_tools.mk elf
+arm-none-eabi-gcc -T/home/spinnaker/source/spinnaker_tools/tools/sark.lnk -Wl,-e,cpu_reset -Wl,-static -ffreestanding -fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,--use-blx -nostartfiles -static -L/home/spinnaker/source/SpiNNFrontEndCommon/c_common/front_end_common_lib/lib -L/home/spinnaker/source/spinn_common/lib -L /home/spinnaker/source/spinnaker_tools/lib /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/neuron/c_main_synapses.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/neuron/synapses.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/neuron/spike_processing_fast.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/neuron/population_table/population_table_binary_search_impl.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/my_models/implementations/stdp_synapse_nestml_impl.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/neuron/structural_plasticity/synaptogenesis_dynamics_static_impl.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl_build.o -lspinn_frontend_common -lspinn_common /home/spinnaker/source/spinnaker_tools/lib/libspin1_api.a -o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.elf
+arm-none-eabi-objdump -dxt > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.txt /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.elf
+arm-none-eabi-objcopy -O binary -j RO_DATA -j EX_DATA /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.elf /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RO_DATA.bin
+arm-none-eabi-objcopy -O binary -j RW_DATA /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.elf /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RW_DATA.bin
+ls -l /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RO_DATA.bin
+-rwxrwx--- 1 elmali csn 25040 Sep 15 11:38 /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RO_DATA.bin
+PERL5LIB=/home/spinnaker/source/spinnaker_tools/tools:$PERL5LIB /home/spinnaker/source/spinnaker_tools/tools/mkbin /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RO_DATA.bin /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RW_DATA.bin > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.bin
+rm -f /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RO_DATA.bin /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/RW_DATA.bin
+arm-none-eabi-nm /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.elf > /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.nm
+mkdir -p /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries/
+PERL5LIB=/home/spinnaker/source/spinnaker_tools/tools:$PERL5LIB /home/spinnaker/source/spinnaker_tools/tools/mkaplx /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.nm | cat - /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.bin > /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries/stdp_synapse_nestml_impl.aplx
+rm /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl_build.c /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.nm /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl_build.o /home/spinnaker/source/sPyNNaker/neural_modelling/builds/stdp_synapse_nestml_impl/stdp_synapse_nestml_impl.bin
+make[1]: Leaving directory '/users/elmali/nestml/spinnaker-install/c_models/makefiles/stdp_synapse_nestml_impl'
+[46,GLOBAL, INFO]: The model parameters were successfully queried from Python standalone target.
+[47,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/iaf_psc_exp_neuron_nestml.py
+[48,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/iaf_psc_exp_neuron_nestml_impl.py
+[49,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/iaf_psc_exp_neuron_nestml_chain_example.py
+[50,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/__init__.py
+[51,iaf_psc_exp_neuron_nestml, INFO, [64:0;119:0]]: Successfully generated code for the model: "iaf_psc_exp_neuron_nestml" in: "/users/elmali/nestml/spinnaker-target" !
+SpiNNakerCodeGenerator::generate_code(): model = stdp_synapse_nestml
+[52,GLOBAL, INFO]: Analysing/transforming synapse stdp_synapse_nestml.
+[53,stdp_synapse_nestml, INFO, [58:0;109:0]]: Starts processing of the model "stdp_synapse_nestml"
+[54,GLOBAL, WARNING]: SpiNNaker does not feature an FPU so division is not implemented on this platform
+[55,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/stdp_synapse_nestml_impl.c
+[56,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/stdp_synapse_nestml_impl.h
+[57,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/Makefile_stdp_synapse_nestml_impl
+[58,stdp_synapse_nestml, INFO, [58:0;109:0]]: Successfully generated code for the model: "stdp_synapse_nestml" in: "/users/elmali/nestml/spinnaker-target" !
+[59,stdp_synapse_nestml, INFO, [58:0;109:0]]: Starts processing of the model "stdp_synapse_nestml"
+[60,GLOBAL, INFO]: Rendering template /users/elmali/nestml/spinnaker-target/stdp_synapse_nestml_impl.py
+[61,stdp_synapse_nestml, INFO, [58:0;109:0]]: Successfully generated code for the model: "stdp_synapse_nestml" in: "/users/elmali/nestml/spinnaker-target" !
+SpiNNakerCodeGenerator::generate_code(): model = __pre_header_for__stdp_synapse_nestml
+Copying "stdp_synapse_nestml_impl.c" to /users/elmali/nestml/spinnaker-install/c_models/src/my_models/implementations
+Copying "stdp_synapse_nestml_impl.h" to /users/elmali/nestml/spinnaker-install/c_models/src/my_models/implementations
+Copying "iaf_psc_exp_neuron_nestml_impl.h" to /users/elmali/nestml/spinnaker-install/c_models/src/my_models/implementations
+Copying "iaf_psc_exp_neuron_nestml.py" to /users/elmali/nestml/spinnaker-install/python_models8/neuron/builds
+Copying "__init__.py" to /users/elmali/nestml/spinnaker-install/python_models8/neuron/builds
+Copying "iaf_psc_exp_neuron_nestml_impl.py" to /users/elmali/nestml/spinnaker-install/python_models8/neuron/implementations
+Copying "stdp_synapse_nestml_impl.py" to /users/elmali/nestml/spinnaker-install/python_models8/neuron/implementations
+Copying "iaf_psc_exp_neuron_nestml_chain_example.py" to /users/elmali/nestml/spinnaker-install/examples
+-------------------------------- live log call ---------------------------------
+INFO     spinn_utilities.conf_loader:log.py:293 Read configs files: /home/spinnaker/source/SpiNNUtils/spinn_utilities/spinn_utilities.cfg, /home/spinnaker/source/SpiNNMachine/spinn_machine/spinn_machine.cfg, /home/spinnaker/source/PACMAN/pacman/pacman.cfg, /home/spinnaker/source/SpiNNMan/spinnman/spinnman.cfg, /home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/spinnaker.cfg, /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spynnaker.cfg, /users/elmali/.spynnaker.cfg
+2026-09-15 11:38:34 INFO: config files read = ['/home/spinnaker/source/SpiNNUtils/spinn_utilities/spinn_utilities.cfg', '/home/spinnaker/source/SpiNNMachine/spinn_machine/spinn_machine.cfg', '/home/spinnaker/source/PACMAN/pacman/pacman.cfg', '/home/spinnaker/source/SpiNNMan/spinnman/spinnman.cfg', '/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/spinnaker.cfg', '/home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spynnaker.cfg', '/users/elmali/.spynnaker.cfg']
+2026-09-15 11:38:34 INFO: As mode is Production running all reports and keeping files is turned off unless specifically asked for in cfg
+2026-09-15 11:38:34 INFO: Will search these locations for binaries: /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries : /users/elmali/nestml/spinnaker-install/python_models8/model_binaries
+2026-09-15 11:38:35 INFO: Setting hardware timestep as 1000 microseconds based on simulation time step of 1000 and timescale factor of 1
+2026-09-15 11:38:35 ERROR: Ignoring the reset before the run
+2026-09-15 11:38:35 WARNING: additional_parameter max_atoms_per_core will be ignored
+2026-09-15 11:38:35 WARNING: additional_parameter max_atoms_per_core will be ignored
+2026-09-15 11:38:35 INFO: Starting execution process
+2026-09-15 11:38:35 INFO: Simulating for 2000 1.0 ms timesteps using a hardware timestep of 1000 us
+2026-09-15 11:38:35 INFO: SpYNNakerNeuronGraphNetworkSpecificationReport skipped as cfg Reports:write_network_graph is False
+2026-09-15 11:38:35 INFO: Network Specification report skipped as cfg Reports:write_network_specification_report is False
+2026-09-15 11:38:35 INFO: Splitter reset took 0:00:00.000045 
+Adding Splitter selectors where appropriate
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:35 INFO: Spynnaker splitter selector took 0:00:00.004776 
+Adding delay extensions as required
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:35 INFO: DelaySupportAdder took 0:00:00.010388 
+Partitioning Graph
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:35 INFO: Splitter partitioner took 0:00:00.025592 
+2026-09-15 11:38:35 INFO: Creating transceiver for 192.168.240.253
+2026-09-15 11:38:35 INFO: Working out if machine is booted
+2026-09-15 11:38:35 INFO: Found board with version [Version: SC&MP 4.0.0 at SpiNNaker:0:0:0 (built Fri Nov 17 10:35:48 2023)]
+2026-09-15 11:38:35 INFO: Machine communication successful
+2026-09-15 11:38:35 INFO: 192.168.240.253
+2026-09-15 11:38:35 INFO: Machine generator took 0:00:00.090715 
+Reading details from 4 chips
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:35 WARNING: Not all Chips have the same sdram. The counts where Counter({40332904: 3, 952128: 1}).
+2026-09-15 11:38:35 WARNING: Not all Chips had the same n_router_tables. The counts where Counter({1023: 3, 1020: 1}).
+2026-09-15 11:38:35 INFO: Detected Machine on 192.168.240.253 with 4 Chips, 59 cores and 7.0 links. Chips have sdram of between 952128 and 40332904 bytes, router table sizes between 1020 and 1023, between 11 and 16 cores and between 3 and 4 links.
+2026-09-15 11:38:35 INFO: Json machine skipped as cfg Reports:write_json_machine is False
+2026-09-15 11:38:35 INFO: Board chip report skipped as cfg Reports:write_board_chip_report is False
+Adding commands
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:35 INFO: Command Sender Adder took 0:00:00.002233 
+2026-09-15 11:38:35 INFO: Split Live Gather Vertices took 0:00:00.000035 
+Adding Chip power monitors
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:35 INFO: Insert chip power monitors took 0:00:00.002978 
+2026-09-15 11:38:35 INFO: Insert extra monitor vertices took 0:00:00.000048 
+Inserting extra monitors
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:35 INFO: Partitioner report skipped as cfg Reports:write_partitioner_reports is False
+Placing Vertices
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:36 INFO: Application Placer took 0:00:00.071508 
+2026-09-15 11:38:36 INFO: Placements with application graph report skipped as cfg Reports:write_application_graph_placer_report is False
+2026-09-15 11:38:36 INFO: Json placements skipped as cfg Reports:write_json_placements is False
+Generating routing tables for data in system processes
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:36 INFO: System multicast routing generator took 0:00:00.002819 
+Routing
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:36 INFO: Application Router took 0:00:00.010667 
+Allocating tags
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:36 INFO: Basic tag allocator took 0:00:00.002881 
+2026-09-15 11:38:36 INFO: Tag allocator report skipped as cfg Reports:write_tag_allocation_reports is False
+Calculating zones
+|0%                          50%                         100%|
+ ============================================================
+Allocating routing keys
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:36 INFO: Zoned routing info allocator took 0:00:00.011968 
+2026-09-15 11:38:36 INFO: Router info report skipped as cfg Reports:write_router_info_report is False
+Generating routing tables
+|0%                          50%                         100%|
+ ============================================================
+2026-09-15 11:38:36 INFO: Merged routing table generator took 0:00:00.006314 
+2026-09-15 11:38:36 INFO: Uncompressed routing table report skipped as cfg Reports:write_uncompressed is False
+2026-09-15 11:38:36 INFO: Validating Uncompressed routing table skipped as cfg Mapping:validate_routes_uncompressed is False
+2026-09-15 11:38:36 INFO: Router report skipped as cfg Reports:write_router_reports is False
+2026-09-15 11:38:36 INFO: Router summary report skipped as cfg Reports:write_router_summary_report is False
+2026-09-15 11:38:36 INFO: Json routing tables skipped as cfg Reports:write_json_routing_tables is False
+2026-09-15 11:38:36 INFO: Locate executable start type took 0:00:00.000465 
+2026-09-15 11:38:36 INFO: Buffer manager creator took 0:00:00.208805 
+2026-09-15 11:38:36 INFO: Energy report exited with LookupError after 0:00:00.014536
+2026-09-15 11:38:36 ERROR: Error There is no region for x=0 y=1 p=3 region=0 when attempting to stop
+Traceback (most recent call last):
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 505, in _run
+    self.__run(run_time, sync_time)
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 586, in __run
+    self._stage_mapping(total_run_time, n_machine_time_steps)
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 1329, in _stage_mapping
+    self._deduce_data_n_timesteps(n_machine_time_steps)
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 658, in _deduce_data_n_timesteps
+    raise PacmanPlaceException(
+pacman.exceptions.PacmanPlaceException: Too much SDRAM has been allocated on chip 0, 0: 966208 of 952128
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 511, in _run
+    self.stop()
+  File "/home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spinnaker.py", line 339, in stop
+    super().stop()
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 2293, in stop
+    self._report_energy()
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 1873, in _report_energy
+    power_used = compute_energy_used(
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/interface_functions/compute_energy_used.py", line 126, in compute_energy_used
+    sum_run_active_time = _extract_cores_active_time(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/interface_functions/compute_energy_used.py", line 197, in _extract_cores_active_time
+    data, _missing = buff_db.get_recording(x, y, p, RECORDING_CHANNEL)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/buffer_management/storage_objects/buffer_database.py", line 423, in get_recording
+    region_id = self._get_existing_recording_region_id(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/buffer_management/storage_objects/buffer_database.py", line 242, in _get_existing_recording_region_id
+    raise LookupError(
+LookupError: There is no region for x=0 y=1 p=3 region=0
+FAILED
+
+=================================== FAILURES ===================================
+_________ TestSpiNNakerBalancedNetwork.test_spinnaker_balanced_network _________
+
+self = <test_spinnaker_balanced_network.TestSpiNNakerBalancedNetwork object at 0x7fb67ec1c7d0>
+
+    def test_spinnaker_balanced_network(self):
+    
+>       results, comparisons = self.run_experiment()
+                               ^^^^^^^^^^^^^^^^^^^^^
+
+tests/spinnaker_tests/test_spinnaker_balanced_network.py:741: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/spinnaker_tests/test_spinnaker_balanced_network.py:691: in run_experiment
+    results["reference"] = self.run_balanced_network(
+tests/spinnaker_tests/test_spinnaker_balanced_network.py:590: in run_balanced_network
+    p.run(t_sim)
+/usr/local/lib/python3.11/site-packages/pyNN/spiNNaker/__init__.py:741: in run
+    return __pynn["run"](simtime, callbacks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/pyNN/common/control.py:114: in run
+    return run_until(simulator.state.t + simtime, callbacks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/pyNN/common/control.py:96: in run_until
+    simulator.state.run_until(time_point)
+/home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spinnaker.py:200: in run_until
+    self._clear_and_run(tstop - self.t)
+/home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spinnaker.py:171: in _clear_and_run
+    super(SpiNNaker, self).run(run_time, sync_time)
+/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py:433: in run
+    self._run(run_time, sync_time)
+/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py:505: in _run
+    self.__run(run_time, sync_time)
+/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py:586: in __run
+    self._stage_mapping(total_run_time, n_machine_time_steps)
+/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py:1329: in _stage_mapping
+    self._deduce_data_n_timesteps(n_machine_time_steps)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = general front end instance for machine 192.168.240.253
+n_machine_time_steps = 2000
+
+    @final
+    def _deduce_data_n_timesteps(
+            self, n_machine_time_steps: int | None) -> None:
+        """
+        Operates the auto pause and resume functionality by figuring out
+        how many timer ticks a simulation can run before SDRAM runs out,
+        and breaks simulation into chunks of that long.
+        """
+        # Go through the placements and find how much SDRAM is used
+        # on each chip
+        usage_by_chip: dict[XY, AbstractSDRAM] = {}
+    
+        for place in self._data_writer.iterate_placemements():
+            if isinstance(place.vertex, AbstractVirtual):
+                continue
+    
+            sdram = place.vertex.sdram_required
+            if (place.x, place.y) in usage_by_chip:
+                usage_by_chip[place.x, place.y] += sdram
+            else:
+                usage_by_chip[place.x, place.y] = sdram
+    
+        # Go through the chips and divide up the remaining SDRAM, finding
+        # the minimum number of machine timesteps to assign
+        max_time_steps = sys.maxsize
+        for (x, y), sdram in usage_by_chip.items():
+            size = self._data_writer.get_chip_at(x, y).sdram
+            if sdram.fixed > size:
+>               raise PacmanPlaceException(
+                    f"Too much SDRAM has been allocated on chip {x}, {y}: "
+                    f"{sdram.fixed} of {size}")
+E               pacman.exceptions.PacmanPlaceException: Too much SDRAM has been allocated on chip 0, 0: 966208 of 952128
+
+/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py:658: PacmanPlaceException
+------------------------------ Captured log setup ------------------------------
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "post_trace__for__stdp_synapse_nestml' = (-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml",
+            "initial_values": {
+                "post_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_post__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [post_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_post__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml, post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols Matrix([[post_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[post_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: post_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[post_trace__for__stdp_synapse_nestml] = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "post_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "post_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_post__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_post__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "post_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "post_trace__for__stdp_synapse_nestml": "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "I_syn_exc' = (-I_syn_exc) / tau_syn_exc",
+            "initial_values": {
+                "I_syn_exc": "0"
+            }
+        },
+        {
+            "expression": "I_syn_inh' = (-I_syn_inh) / tau_syn_inh",
+            "initial_values": {
+                "I_syn_inh": "0"
+            }
+        },
+        {
+            "expression": "V_m' = (-(V_m - E_L)) / tau_m + (I_syn_exc - I_syn_inh) / C_m",
+            "initial_values": {
+                "V_m": "E_L"
+            }
+        },
+        {
+            "expression": "refr_t' = (-1000.) * 1.0 / 1000.0",
+            "initial_values": {
+                "refr_t": "0"
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "C_m": "250",
+        "E_L": "(-70)",
+        "V_reset": "(-70)",
+        "V_th": "(-55)",
+        "refr_T": "2",
+        "tau_m": "10",
+        "tau_syn_exc": "2",
+        "tau_syn_inh": "2"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_exc with defining expression = "(-I_syn_exc) / tau_syn_exc"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols [I_syn_exc])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_exc, derivative_factors = [-1/tau_syn_exc], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_exc" of order 1
+DEBUG    root:shapes.py:349 Shape I_syn_exc: reconstituting expression -I_syn_exc/tau_syn_exc
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_inh with defining expression = "(-I_syn_inh) / tau_syn_inh"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols [I_syn_inh])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_inh]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_inh, derivative_factors = [-1/tau_syn_inh], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_inh" of order 1
+DEBUG    root:shapes.py:349 Shape I_syn_inh: reconstituting expression -I_syn_inh/tau_syn_inh
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape V_m with defining expression = "(-(V_m - E_L)) / tau_m + (I_syn_exc - I_syn_inh) / C_m"
+DEBUG    root:shapes.py:374 Splitting expression (E_L - V_m)/tau_m + (I_syn_exc - I_syn_inh)/C_m (symbols [V_m])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_m]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:163 Created Shape with symbol V_m, derivative_factors = [-1/tau_m], inhom_term = E_L/tau_m, nonlin_term = I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:608 	Returning shape: Shape "V_m" of order 1
+DEBUG    root:shapes.py:349 Shape V_m: reconstituting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape refr_t with defining expression = "(-1000.) * 1.0 / 1000.0"
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols [refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol refr_t, derivative_factors = [0], inhom_term = -1.00000000000000, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "refr_t" of order 1
+DEBUG    root:shapes.py:349 Shape refr_t: reconstituting expression -1.00000000000000
+INFO     root:__init__.py:125 All known variables: [I_syn_exc, I_syn_inh, V_m, refr_t], all parameters used in ODEs: {tau_syn_inh, C_m, tau_syn_exc, E_L, tau_m}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_exc with defining expression = "(-I_syn_exc) / tau_syn_exc"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_exc, derivative_factors = [-1/tau_syn_exc], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_exc" of order 1
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape I_syn_inh with defining expression = "(-I_syn_inh) / tau_syn_inh"
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc, I_syn_inh])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [-1/tau_syn_inh], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol I_syn_inh, derivative_factors = [-1/tau_syn_inh], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "I_syn_inh" of order 1
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape V_m with defining expression = "(-(V_m - E_L)) / tau_m + (I_syn_exc - I_syn_inh) / C_m"
+DEBUG    root:shapes.py:374 Splitting expression (E_L - V_m)/tau_m + (I_syn_exc - I_syn_inh)/C_m (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc, I_syn_inh, V_m])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[1/C_m], [-1/C_m], [-1/tau_m], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol V_m, derivative_factors = [-1/tau_m], inhom_term = E_L/tau_m, nonlin_term = I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:608 	Returning shape: Shape "V_m" of order 1
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape refr_t with defining expression = "(-1000.) * 1.0 / 1000.0"
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols [I_syn_exc, I_syn_inh, V_m, refr_t, I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [0], [0], [0], [0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol refr_t, derivative_factors = [0], inhom_term = -1.00000000000000, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "refr_t" of order 1
+DEBUG    root:shapes.py:349 Shape I_syn_exc: reconstituting expression -I_syn_exc/tau_syn_exc
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape I_syn_inh: reconstituting expression -I_syn_inh/tau_syn_inh
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [-1/tau_syn_inh], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape V_m: reconstituting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:374 Splitting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[1/C_m], [-1/C_m], [-1/tau_m], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape refr_t: reconstituting expression -1.00000000000000
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]), A = Matrix([[-1/tau_syn_exc, 0, 0, 0], [0, -1/tau_syn_inh, 0, 0], [1/C_m, -1/C_m, -1/tau_m, 0], [0, 0, 0, 0]]), b = Matrix([[0], [0], [E_L/tau_m], [-1.00000000000000]]), c = Matrix([[0], [0], [0], [0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape I_syn_exc: reconstituting expression -I_syn_exc/tau_syn_exc
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_exc/tau_syn_exc (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_syn_exc], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape I_syn_inh: reconstituting expression -I_syn_inh/tau_syn_inh
+DEBUG    root:shapes.py:374 Splitting expression -I_syn_inh/tau_syn_inh (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [-1/tau_syn_inh], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape V_m: reconstituting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m
+DEBUG    root:shapes.py:374 Splitting expression E_L/tau_m - V_m/tau_m + I_syn_exc/C_m - I_syn_inh/C_m (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[1/C_m], [-1/C_m], [-1/tau_m], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: E_L/tau_m
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:349 Shape refr_t: reconstituting expression -1.00000000000000
+DEBUG    root:shapes.py:374 Splitting expression -1.00000000000000 (symbols [I_syn_exc, I_syn_inh, V_m, refr_t])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[0], [0], [0], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: -1.00000000000000
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]])
+DEBUG    root:__init__.py:235 A = Matrix([
+[-1/tau_syn_exc,              0,        0, 0],
+[             0, -1/tau_syn_inh,        0, 0],
+[         1/C_m,         -1/C_m, -1/tau_m, 0],
+[             0,              0,        0, 0]])
+DEBUG    root:__init__.py:236 b = Matrix([[0], [0], [E_L/tau_m], [-1.00000000000000]])
+DEBUG    root:__init__.py:237 c = Matrix([[0], [0], [0], [0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: I_syn_exc, I_syn_inh, V_m, refr_t
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[I_syn_exc], [I_syn_inh], [V_m], [refr_t]]), A = Matrix([[-1/tau_syn_exc, 0, 0, 0], [0, -1/tau_syn_inh, 0, 0], [1/C_m, -1/C_m, -1/tau_m, 0], [0, 0, 0, 0]]), b = Matrix([[0], [0], [E_L/tau_m], [-1.00000000000000]]), c = Matrix([[0], [0], [0], [0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+WARNING  root:system_of_shapes.py:247 Under certain conditions, the propagator matrix is singular (contains infinities).
+WARNING  root:system_of_shapes.py:248 List of all conditions that result in a division by zero:
+WARNING  root:system_of_shapes.py:250 	tau_m = tau_syn_exc
+WARNING  root:system_of_shapes.py:250 	tau_m = tau_syn_inh
+DEBUG    root:system_of_shapes.py:308 update_expr[I_syn_exc] = I_syn_exc*__P__I_syn_exc__I_syn_exc
+DEBUG    root:system_of_shapes.py:308 update_expr[I_syn_inh] = I_syn_inh*__P__I_syn_inh__I_syn_inh
+DEBUG    root:singularity_detection.py:172 Checking for singularities (divisions by zero) in the inhomogeneous part of the update equations...
+DEBUG    root:system_of_shapes.py:308 update_expr[V_m] = -E_L*__P__V_m__V_m + E_L + I_syn_exc*__P__V_m__I_syn_exc + I_syn_inh*__P__V_m__I_syn_inh + V_m*__P__V_m__V_m
+DEBUG    root:system_of_shapes.py:308 update_expr[refr_t] = __P__refr_t__refr_t*refr_t - 1.0*__h
+WARNING  root:__init__.py:379 Not preserving expression for variable "I_syn_exc" as it is solved by propagator solver
+WARNING  root:__init__.py:379 Not preserving expression for variable "I_syn_inh" as it is solved by propagator solver
+WARNING  root:__init__.py:379 Not preserving expression for variable "V_m" as it is solved by propagator solver
+WARNING  root:__init__.py:379 Not preserving expression for variable "refr_t" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "I_syn_exc": "0",
+            "I_syn_inh": "0",
+            "V_m": "E_L",
+            "refr_t": "0"
+        },
+        "parameters": {
+            "C_m": "250.000000000000",
+            "E_L": "-70.0000000000000",
+            "tau_m": "10.0000000000000",
+            "tau_syn_exc": "2.00000000000000",
+            "tau_syn_inh": "2.00000000000000"
+        },
+        "propagators": {
+            "__P__I_syn_exc__I_syn_exc": "exp(-__h/tau_syn_exc)",
+            "__P__I_syn_inh__I_syn_inh": "exp(-__h/tau_syn_inh)",
+            "__P__V_m__I_syn_exc": "tau_m*tau_syn_exc*(-exp(__h/tau_m) + exp(__h/tau_syn_exc))*exp(-__h*(tau_m + tau_syn_exc)/(tau_m*tau_syn_exc))/(C_m*(tau_m - tau_syn_exc))",
+            "__P__V_m__I_syn_inh": "tau_m*tau_syn_inh*(exp(__h/tau_m) - exp(__h/tau_syn_inh))*exp(-__h*(tau_m + tau_syn_inh)/(tau_m*tau_syn_inh))/(C_m*(tau_m - tau_syn_inh))",
+            "__P__V_m__V_m": "exp(-__h/tau_m)",
+            "__P__refr_t__refr_t": "1"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "I_syn_exc",
+            "I_syn_inh",
+            "V_m",
+            "refr_t"
+        ],
+        "update_expressions": {
+            "I_syn_exc": "I_syn_exc*__P__I_syn_exc__I_syn_exc",
+            "I_syn_inh": "I_syn_inh*__P__I_syn_inh__I_syn_inh",
+            "V_m": "-E_L*__P__V_m__V_m + E_L + I_syn_exc*__P__V_m__I_syn_exc + I_syn_inh*__P__V_m__I_syn_inh + V_m*__P__V_m__V_m",
+            "refr_t": "__P__refr_t__refr_t*refr_t - 1.0*__h"
+        }
+    }
+]
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "pre_trace__for__stdp_synapse_nestml' = (-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml",
+            "initial_values": {
+                "pre_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_pre__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [pre_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_pre__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml, pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols Matrix([[pre_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[pre_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: pre_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[pre_trace__for__stdp_synapse_nestml] = __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "pre_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "pre_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_pre__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_pre__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "pre_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "pre_trace__for__stdp_synapse_nestml": "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "post_trace__for__stdp_synapse_nestml' = (-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml",
+            "initial_values": {
+                "post_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_post__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [post_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_post__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape post_trace__for__stdp_synapse_nestml with defining expression = "(-post_trace__for__stdp_synapse_nestml) / tau_tr_post__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml, post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol post_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_post__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "post_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols Matrix([[post_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape post_trace__for__stdp_synapse_nestml: reconstituting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -post_trace__for__stdp_synapse_nestml/tau_tr_post__for__stdp_synapse_nestml (symbols [post_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[post_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: post_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[post_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_post__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[post_trace__for__stdp_synapse_nestml] = __P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "post_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "post_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_post__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_post__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "post_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "post_trace__for__stdp_synapse_nestml": "__P__post_trace__for__stdp_synapse_nestml__post_trace__for__stdp_synapse_nestml*post_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+INFO     root:__init__.py:196 Analysing input:
+INFO     root:__init__.py:197 {
+    "dynamics": [
+        {
+            "expression": "pre_trace__for__stdp_synapse_nestml' = (-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml",
+            "initial_values": {
+                "pre_trace__for__stdp_synapse_nestml": "0."
+            }
+        }
+    ],
+    "options": {
+        "output_timestep_symbol": "__h",
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+    },
+    "parameters": {
+        "tau_tr_pre__for__stdp_synapse_nestml": "20"
+    }
+}
+INFO     root:__init__.py:97 Processing global options...
+INFO     root:__init__.py:111 Processing input shapes...
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0.0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+INFO     root:__init__.py:125 All known variables: [pre_trace__for__stdp_synapse_nestml], all parameters used in ODEs: {tau_tr_pre__for__stdp_synapse_nestml}
+DEBUG    root:shapes.py:571 
+Processing differential-equation form shape pre_trace__for__stdp_synapse_nestml with defining expression = "(-pre_trace__for__stdp_synapse_nestml) / tau_tr_pre__for__stdp_synapse_nestml"
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml, pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml], [0]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:shapes.py:163 Created Shape with symbol pre_trace__for__stdp_synapse_nestml, derivative_factors = [-1/tau_tr_pre__for__stdp_synapse_nestml], inhom_term = 0.0, nonlin_term = 0
+DEBUG    root:shapes.py:608 	Returning shape: Shape "pre_trace__for__stdp_synapse_nestml" of order 1
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols Matrix([[pre_trace__for__stdp_synapse_nestml]]))
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+INFO     root:__init__.py:64 Finding analytically solvable equations...
+DEBUG    root:shapes.py:349 Shape pre_trace__for__stdp_synapse_nestml: reconstituting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml
+DEBUG    root:shapes.py:374 Splitting expression -pre_trace__for__stdp_synapse_nestml/tau_tr_pre__for__stdp_synapse_nestml (symbols [pre_trace__for__stdp_synapse_nestml])
+DEBUG    root:shapes.py:400 	linear factors: Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:shapes.py:401 	inhomogeneous term: 0.0
+DEBUG    root:shapes.py:402 	nonlinear term: 0.0
+DEBUG    root:__init__.py:233 System of equations:
+DEBUG    root:__init__.py:234 x = Matrix([[pre_trace__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:235 A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]])
+DEBUG    root:__init__.py:236 b = Matrix([[0]])
+DEBUG    root:__init__.py:237 c = Matrix([[0]])
+INFO     root:__init__.py:252 Generating propagators for the following symbols: pre_trace__for__stdp_synapse_nestml
+DEBUG    root:system_of_shapes.py:91 Initializing system of shapes with x = Matrix([[pre_trace__for__stdp_synapse_nestml]]), A = Matrix([[-1/tau_tr_pre__for__stdp_synapse_nestml]]), b = Matrix([[0]]), c = Matrix([[0]])
+DEBUG    root:singularity_detection.py:206 Checking for singularities (divisions by zero) in the propagator matrix...
+DEBUG    root:system_of_shapes.py:308 update_expr[pre_trace__for__stdp_synapse_nestml] = __P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml
+WARNING  root:__init__.py:379 Not preserving expression for variable "pre_trace__for__stdp_synapse_nestml" as it is solved by propagator solver
+INFO     root:__init__.py:391 In ode-toolbox: returning outdict = 
+INFO     root:__init__.py:392 [
+    {
+        "initial_values": {
+            "pre_trace__for__stdp_synapse_nestml": "0.0"
+        },
+        "parameters": {
+            "tau_tr_pre__for__stdp_synapse_nestml": "20.0000000000000"
+        },
+        "propagators": {
+            "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml": "exp(-__h/tau_tr_pre__for__stdp_synapse_nestml)"
+        },
+        "solver": "analytical",
+        "state_variables": [
+            "pre_trace__for__stdp_synapse_nestml"
+        ],
+        "update_expressions": {
+            "pre_trace__for__stdp_synapse_nestml": "__P__pre_trace__for__stdp_synapse_nestml__pre_trace__for__stdp_synapse_nestml*pre_trace__for__stdp_synapse_nestml"
+        }
+    }
+]
+------------------------------ Captured log call -------------------------------
+INFO     spinn_utilities.conf_loader:log.py:293 Read configs files: /home/spinnaker/source/SpiNNUtils/spinn_utilities/spinn_utilities.cfg, /home/spinnaker/source/SpiNNMachine/spinn_machine/spinn_machine.cfg, /home/spinnaker/source/PACMAN/pacman/pacman.cfg, /home/spinnaker/source/SpiNNMan/spinnman/spinnman.cfg, /home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/spinnaker.cfg, /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spynnaker.cfg, /users/elmali/.spynnaker.cfg
+2026-09-15 11:38:34 INFO: config files read = ['/home/spinnaker/source/SpiNNUtils/spinn_utilities/spinn_utilities.cfg', '/home/spinnaker/source/SpiNNMachine/spinn_machine/spinn_machine.cfg', '/home/spinnaker/source/PACMAN/pacman/pacman.cfg', '/home/spinnaker/source/SpiNNMan/spinnman/spinnman.cfg', '/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/spinnaker.cfg', '/home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spynnaker.cfg', '/users/elmali/.spynnaker.cfg']
+2026-09-15 11:38:34 INFO: As mode is Production running all reports and keeping files is turned off unless specifically asked for in cfg
+2026-09-15 11:38:34 INFO: Will search these locations for binaries: /home/spinnaker/source/sPyNNaker/spynnaker/pyNN/model_binaries : /users/elmali/nestml/spinnaker-install/python_models8/model_binaries
+2026-09-15 11:38:35 INFO: Setting hardware timestep as 1000 microseconds based on simulation time step of 1000 and timescale factor of 1
+2026-09-15 11:38:35 ERROR: Ignoring the reset before the run
+2026-09-15 11:38:35 WARNING: additional_parameter max_atoms_per_core will be ignored
+2026-09-15 11:38:35 WARNING: additional_parameter max_atoms_per_core will be ignored
+2026-09-15 11:38:35 INFO: Starting execution process
+2026-09-15 11:38:35 INFO: Simulating for 2000 1.0 ms timesteps using a hardware timestep of 1000 us
+2026-09-15 11:38:35 INFO: SpYNNakerNeuronGraphNetworkSpecificationReport skipped as cfg Reports:write_network_graph is False
+2026-09-15 11:38:35 INFO: Network Specification report skipped as cfg Reports:write_network_specification_report is False
+2026-09-15 11:38:35 INFO: Splitter reset took 0:00:00.000045 
+2026-09-15 11:38:35 INFO: Spynnaker splitter selector took 0:00:00.004776 
+2026-09-15 11:38:35 INFO: DelaySupportAdder took 0:00:00.010388 
+2026-09-15 11:38:35 INFO: Splitter partitioner took 0:00:00.025592 
+2026-09-15 11:38:35 INFO: Creating transceiver for 192.168.240.253
+2026-09-15 11:38:35 INFO: Working out if machine is booted
+2026-09-15 11:38:35 INFO: Found board with version [Version: SC&MP 4.0.0 at SpiNNaker:0:0:0 (built Fri Nov 17 10:35:48 2023)]
+2026-09-15 11:38:35 INFO: Machine communication successful
+2026-09-15 11:38:35 INFO: 192.168.240.253
+2026-09-15 11:38:35 INFO: Machine generator took 0:00:00.090715 
+2026-09-15 11:38:35 WARNING: Not all Chips have the same sdram. The counts where Counter({40332904: 3, 952128: 1}).
+2026-09-15 11:38:35 WARNING: Not all Chips had the same n_router_tables. The counts where Counter({1023: 3, 1020: 1}).
+2026-09-15 11:38:35 INFO: Detected Machine on 192.168.240.253 with 4 Chips, 59 cores and 7.0 links. Chips have sdram of between 952128 and 40332904 bytes, router table sizes between 1020 and 1023, between 11 and 16 cores and between 3 and 4 links.
+2026-09-15 11:38:35 INFO: Json machine skipped as cfg Reports:write_json_machine is False
+2026-09-15 11:38:35 INFO: Board chip report skipped as cfg Reports:write_board_chip_report is False
+2026-09-15 11:38:35 INFO: Command Sender Adder took 0:00:00.002233 
+2026-09-15 11:38:35 INFO: Split Live Gather Vertices took 0:00:00.000035 
+2026-09-15 11:38:35 INFO: Insert chip power monitors took 0:00:00.002978 
+2026-09-15 11:38:35 INFO: Insert extra monitor vertices took 0:00:00.000048 
+2026-09-15 11:38:35 INFO: Partitioner report skipped as cfg Reports:write_partitioner_reports is False
+2026-09-15 11:38:36 INFO: Application Placer took 0:00:00.071508 
+2026-09-15 11:38:36 INFO: Placements with application graph report skipped as cfg Reports:write_application_graph_placer_report is False
+2026-09-15 11:38:36 INFO: Json placements skipped as cfg Reports:write_json_placements is False
+2026-09-15 11:38:36 INFO: System multicast routing generator took 0:00:00.002819 
+2026-09-15 11:38:36 INFO: Application Router took 0:00:00.010667 
+2026-09-15 11:38:36 INFO: Basic tag allocator took 0:00:00.002881 
+2026-09-15 11:38:36 INFO: Tag allocator report skipped as cfg Reports:write_tag_allocation_reports is False
+2026-09-15 11:38:36 INFO: Zoned routing info allocator took 0:00:00.011968 
+2026-09-15 11:38:36 INFO: Router info report skipped as cfg Reports:write_router_info_report is False
+2026-09-15 11:38:36 INFO: Merged routing table generator took 0:00:00.006314 
+2026-09-15 11:38:36 INFO: Uncompressed routing table report skipped as cfg Reports:write_uncompressed is False
+2026-09-15 11:38:36 INFO: Validating Uncompressed routing table skipped as cfg Mapping:validate_routes_uncompressed is False
+2026-09-15 11:38:36 INFO: Router report skipped as cfg Reports:write_router_reports is False
+2026-09-15 11:38:36 INFO: Router summary report skipped as cfg Reports:write_router_summary_report is False
+2026-09-15 11:38:36 INFO: Json routing tables skipped as cfg Reports:write_json_routing_tables is False
+2026-09-15 11:38:36 INFO: Locate executable start type took 0:00:00.000465 
+2026-09-15 11:38:36 INFO: Buffer manager creator took 0:00:00.208805 
+2026-09-15 11:38:36 INFO: Energy report exited with LookupError after 0:00:00.014536
+2026-09-15 11:38:36 ERROR: Error There is no region for x=0 y=1 p=3 region=0 when attempting to stop
+Traceback (most recent call last):
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 505, in _run
+    self.__run(run_time, sync_time)
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 586, in __run
+    self._stage_mapping(total_run_time, n_machine_time_steps)
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 1329, in _stage_mapping
+    self._deduce_data_n_timesteps(n_machine_time_steps)
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 658, in _deduce_data_n_timesteps
+    raise PacmanPlaceException(
+pacman.exceptions.PacmanPlaceException: Too much SDRAM has been allocated on chip 0, 0: 966208 of 952128
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 511, in _run
+    self.stop()
+  File "/home/spinnaker/source/sPyNNaker/spynnaker/pyNN/spinnaker.py", line 339, in stop
+    super().stop()
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 2293, in stop
+    self._report_energy()
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/abstract_spinnaker_base.py", line 1873, in _report_energy
+    power_used = compute_energy_used(
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/interface_functions/compute_energy_used.py", line 126, in compute_energy_used
+    sum_run_active_time = _extract_cores_active_time(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/interface_functions/compute_energy_used.py", line 197, in _extract_cores_active_time
+    data, _missing = buff_db.get_recording(x, y, p, RECORDING_CHANNEL)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/buffer_management/storage_objects/buffer_database.py", line 423, in get_recording
+    region_id = self._get_existing_recording_region_id(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/spinnaker/source/SpiNNFrontEndCommon/spinn_front_end_common/interface/buffer_management/storage_objects/buffer_database.py", line 242, in _get_existing_recording_region_id
+    raise LookupError(
+LookupError: There is no region for x=0 y=1 p=3 region=0
+=========================== short test summary info ============================
+FAILED tests/spinnaker_tests/test_spinnaker_balanced_network.py::TestSpiNNakerBalancedNetwork::test_spinnaker_balanced_network
+============================== 1 failed in 51.45s ==============================
+
+!WARNING: 6 log messages were generated at level WARNING or above.
+This may mean that the results are invalid.
+You are advised to check the details of these in the p_log_view of : /users/elmali/nestml/reports/2026-09-15-11-38-34-813896/global_provenance.sqlite3
+These are:
+Ignoring the reset before the run
+additional_parameter max_atoms_per_core will be ignored
+additional_parameter max_atoms_per_core will be ignored
+Not all Chips have the same sdram. The counts where Counter({40332904: 3, 952128: 1}).
+Not all Chips had the same n_router_tables. The counts where Counter({1023: 3, 1020: 1}).
+Error There is no region for x=0 y=1 p=3 region=0 when attempting to stop

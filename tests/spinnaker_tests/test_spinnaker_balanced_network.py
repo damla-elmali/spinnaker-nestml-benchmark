@@ -35,7 +35,7 @@ from pyNN.random import RandomDistribution
 from datetime import datetime
 import time
 
-from extras.spinnaker1.analyze_sample_profile import analyze_latest_profiles
+from analyze_sample_profile import analyze_run
 
 
 
@@ -222,34 +222,6 @@ def save_results_to_csv(results):
 
             writer.writerow(row)
 
-def save_comparisons_to_csv(builtin, comparisons):
-
-    filename = "benchmark_balanced_networks_comparisons.csv"
-
-    fieldnames = ["builtin_timestamp", "implementation",
-                  "exc_relative_difference", "inh_relative_difference", "cv_absolute_difference",
-                  "execution_time_difference"]
-
-    file_exists = os.path.isfile(filename)
-
-    with open(filename, "a", newline="") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-
-        if not file_exists: 
-            writer.writeheader()
-
-        for name, comparison in comparisons.items():
-
-            row = {
-                "builtin_timestamp": builtin["timestamp"],
-                "implementation": name,
-                "exc_relative_difference": comparison["exc_relative_difference"],
-                "inh_relative_difference": comparison["inh_relative_difference"],
-                "cv_absolute_difference": comparison["cv_absolute_difference"],
-                "execution_time_difference": comparison["execution_time_difference"]
-            }
-
-            writer.writerow(row)
 
 
 def plot_membrane_potential(results):
@@ -330,10 +302,12 @@ class TestSpiNNakerBalancedNetwork:
                     scope="module")
     
     def generate_code(self):
+        use_exp_luts = os.environ.get("USE_EXP_LUTS", "true").lower() == "true"
+
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                   "synapses": {"stdp_synapse": {"post_ports": ["post_spikes"]}}}],
                         "weight_variable": {"stdp_synapse": "w"},
-                        "use_exp_luts": False}
+                        "use_exp_luts": use_exp_luts}
        
 
 
@@ -356,39 +330,25 @@ class TestSpiNNakerBalancedNetwork:
 
 
 
-    def run_balanced_network(self, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, use_exp_luts: bool):
+    def run_balanced_network(self, use_nestml_neuron, use_nestml_synapse, use_static_synapses: bool, use_exp_luts):
         from python_models8.neuron.implementations.stdp_synapse_nestml_impl import stdp_synapse_nestmlDynamics as stdp_synapse_nestml
         from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
-        t_sim = 2000    # total time to simulator for [ms]
+        t_sim = 1000    # total time to simulator for [ms]
         p_conn = .1    # connection probability
         rate_ext_input = 50.    # external input rate (eta parameter) [s⁻¹]
-        n_neurons = 512
+        n_neurons = 128
         n_exc = int(round(n_neurons * 0.8))
         n_inh = int(round(n_neurons * 0.2))
         g = 10.    # the ratio between excitation and inhibition
                 # try -10 for asynchronous irregular activity. Try -1 for population-wide activity bursts
-        neurons_per_core = 32  # was: 8
-        poisson_generators_per_core = 32  # was: 4
+        neurons_per_core = 16  # was: 8
+        poisson_generators_per_core = 16  # was: 4
 
-        #Setup
+
         p.setup(timestep=1.0)
         p.reset()
         p.set_number_of_neurons_per_core(p.SpikeSourcePoisson, poisson_generators_per_core)
-
-        # Implementation name
-        if use_nestml_neuron and use_nestml_synapse:
-            implementation = "nestml_neuron_nestml_stdp"
-
-        elif not use_nestml_neuron and use_nestml_synapse:
-            implementation = "builtin_neuron_nestml_stdp"
-
-        elif use_nestml_neuron and not use_nestml_synapse:
-            implementation = "nestml_neuron_builtin_stdp"
-
-        else:
-            implementation = "builtin_neuron_builtin_stdp"
-
 
         if use_nestml_neuron:
             neuron_model = iaf_psc_exp_neuron_nestml
@@ -427,9 +387,8 @@ class TestSpiNNakerBalancedNetwork:
                 "tau_refrac": 2
             }
 
+
         p.set_number_of_neurons_per_core(neuron_model, neurons_per_core)
-
-
 
 
         # Initial Weights
@@ -617,6 +576,8 @@ class TestSpiNNakerBalancedNetwork:
         # Timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+        implementation = "nestml" if use_nestml_neuron or use_nestml_synapse else "builtin"
+
         print(f"Finished {implementation} simulation.")
 
         p.end()
@@ -653,47 +614,38 @@ class TestSpiNNakerBalancedNetwork:
         }
 
 
-    def run_experiment(self):
+    def run_experiment(self, implementations, use_exp_luts=True):
         """
         Run reference and NESTML, compare their results,
         save results and generate plots.
         """
         use_static_synapses = False
 
-        experiments_to_run = ["builtin", "nestml"]
         results = {}
 
-        for experiment in experiments_to_run:
+        for implementation in implementations:
 
-            if experiment == "builtin":
+            if implementation == "builtin":
                 results["builtin"] = self.run_balanced_network(
                     use_nestml_neuron=False,
                     use_nestml_synapse=False,
                     use_static_synapses=use_static_synapses,
-                    use_exp_luts=False)
+                    use_exp_luts=None)
 
-            # elif experiment == "builtin_neuron_nestml_stdp":
-            #     results["builtin_neuron_nestml_stdp"] = self.run_balanced_network(
-            #         use_nestml_neuron=False,
-            #         use_nestml_synapse=True, 
-            #         use_static_synapses=use_static_synapses
-            #     )
+                analyze_run(results["builtin"])
 
-            # elif experiment == "nestml_neuron_builtin_stdp":
-            #     results["nestml_neuron_builtin_stdp"] = self.run_balanced_network(
-            #             use_nestml_neuron=True,
-            #             use_nestml_synapse=False, 
-            #         use_static_synapses=use_static_synapses
-            #         )
-
-            elif experiment == "nestml":
+            elif implementation == "nestml":
                 results["nestml"] = self.run_balanced_network(
                     use_nestml_neuron=True,
                     use_nestml_synapse=True, 
                     use_static_synapses=use_static_synapses,
-                    use_exp_luts=False
-                )
+                    use_exp_luts=use_exp_luts)
+                
+                analyze_run(results["nestml"])
 
+            else:
+                raise ValueError(f"Unknown implementation: {implementation}")
+                
 
         builtin = results.get("builtin")
 
@@ -704,21 +656,15 @@ class TestSpiNNakerBalancedNetwork:
 
         print_results(results, comparisons)
         save_results_to_csv(results)
-
-        if builtin is not None:
-
-            save_comparisons_to_csv(builtin, comparisons)
-
         plot_results(results)
 
-        analyze_latest_profiles()
 
         return results, comparisons
 
 
     def test_spinnaker_balanced_network(self):
 
-        results, comparisons = self.run_experiment()
+        results, comparisons = self.run_experiment(["builtin", "nestml"], use_exp_luts=True)
 
         # Basic checks
 
@@ -728,9 +674,6 @@ class TestSpiNNakerBalancedNetwork:
 
         for name, result in results.items():
 
-            if result is None:
-                continue
-
             assert np.isfinite(result["exc_firing_rate"])
             assert np.isfinite(result["inh_firing_rate"])
             assert np.isfinite(result["cv"])
@@ -738,16 +681,30 @@ class TestSpiNNakerBalancedNetwork:
             assert result["exc_firing_rate"] > 0.0
             assert result["inh_firing_rate"] > 0.0
 
-        # Reference vs other implementations
-        if "builtin" in comparisons:
+        # Comparison değerleri
+        exc_rate_tolerance = 0.40
+        inh_rate_tolerance = 0.40
+        cv_tolerance = 0.20
 
-            exc_rate_tolerance = 0.40
-            inh_rate_tolerance = 0.40
-            cv_tolerance = 0.20
+        comparison = comparisons["nestml"]
 
-            for name, comparison in comparisons.items():
+        assert comparison["exc_relative_difference"] < exc_rate_tolerance
+        assert comparison["inh_relative_difference"] < inh_rate_tolerance
+        assert comparison["cv_absolute_difference"] < cv_tolerance
 
-                assert comparison["exc_relative_difference"] < exc_rate_tolerance
-                assert comparison["inh_relative_difference"] < inh_rate_tolerance
-                assert comparison["cv_absolute_difference"] < cv_tolerance
 
+
+    def test_nestml(self):
+
+        results, comparisons = self.run_experiment(["nestml"],use_exp_luts=False)
+
+        result = results["nestml"]
+
+        assert np.isfinite(result["exc_firing_rate"])
+        assert np.isfinite(result["inh_firing_rate"])
+        assert np.isfinite(result["cv"])
+
+        assert result["exc_firing_rate"] > 0.0
+        assert result["inh_firing_rate"] > 0.0
+
+        assert comparisons == {}

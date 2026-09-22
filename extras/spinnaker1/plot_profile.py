@@ -123,9 +123,10 @@ def plot_sum_core_activity(rows):
 
     print(f"Sum core activity plot saved to: {output_path}")
 
+def plot_core_activity_by_neurons(rows):
+    """Plot core activity for different neuron counts."""
 
-def plot_core_activity(rows):
-    """Plot core activity for each profiled run."""
+    experiments = {}
 
     for row in rows:
         implementation = get_experiment_label(row)
@@ -133,62 +134,102 @@ def plot_core_activity(rows):
         if implementation not in IMPLEMENTATION_LABELS:
             continue
 
-        profile_path = row.get("profile")
+        timestamp = row.get("timestamp")
 
-        if not profile_path:
+        try:
+            neurons = int(row["N"])
+        except (ValueError, TypeError, KeyError):
             continue
 
-        profile_path = Path(profile_path)
+        profile_path = (
+            BASE_DIR
+            / "reports_archive"
+            / timestamp
+            / "sample_profile.json"
+        )
 
         if not profile_path.exists():
             print(f"Profile file not found: {profile_path}")
             continue
 
-        cores = extract_core_activity(load_profile(profile_path))
+        data = load_profile(profile_path)
+        cores = extract_core_activity(data)
 
-        if not cores:
+        experiments.setdefault(implementation, []).append(
+            (neurons, cores)
+        )
+
+    for implementation, runs in experiments.items():
+
+        core_data = {}
+
+        for neurons, cores in runs:
+            for core in cores:
+                core_name = f"{core['chip']}:{core['core']}"
+
+                core_data.setdefault(core_name, []).append(
+                    (neurons, core["mean_percent_active"])
+                )
+
+        if not core_data:
             continue
 
-        labels = [
-            f"{core['chip']}:{core['core']}"
-            for core in cores
-        ]
+        core_names = sorted(core_data.keys())
 
-        values = [
-            core["mean_percent_active"]
-            for core in cores
-        ]
+        plt.figure(figsize=(14, 7))
 
-        plt.figure(figsize=(12, 6))
+        for x, core_name in enumerate(core_names):
 
-        plt.bar(labels, values)
+            values = sorted(
+                core_data[core_name],
+                key=lambda value: value[0]
+            )
+
+            for neurons, activity in values:
+                plt.scatter(
+                    x,
+                    activity,
+                    s=45
+                )
+
+                plt.annotate(
+                    f"N={neurons}",
+                    (x, activity),
+                    xytext=(5, 5),
+                    textcoords="offset points",
+                    fontsize=8
+                )
+
+        plt.xticks(
+            range(len(core_names)),
+            core_names,
+            rotation=90
+        )
 
         plt.xlabel("Core")
         plt.ylabel("Mean active time [%]")
         plt.title(
             f"{IMPLEMENTATION_LABELS[implementation]} "
-            "SpiNNaker Core Activity"
+            "Core Activity vs Number of Neurons"
         )
 
-        plt.xticks(rotation=90)
         plt.tight_layout()
 
         output_path = (
-            BASE_DIR /
-            f"sample_profile_activity_{implementation}.png"
+            BASE_DIR
+            / f"sample_profile_core_activity_vs_N_{implementation}.png"
         )
 
         plt.savefig(output_path, dpi=300)
         plt.close()
 
-        print(f"Core activity plot saved to: {output_path}")
-
+        print(f"Core activity vs N plot saved to: {output_path}")
 
 def main():
     rows = load_profiling_data()
 
     plot_sum_core_activity(rows)
-    plot_core_activity(rows)
+    plot_core_activity_by_neurons(rows)
 
 
 if __name__ == "__main__":

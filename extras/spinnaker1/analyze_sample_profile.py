@@ -256,6 +256,7 @@ def save_profiling_to_csv(result, core_count, mean_activity, sum_activity):
     row = {
         "timestamp": result["timestamp"],
         "implementation": result["implementation"],
+        "seed": result["seed"],
         "use_static_synapses": result["use_static_synapses"],
         "use_exp_luts": result["use_exp_luts"],
         "N": result["n_neurons"],
@@ -286,6 +287,7 @@ def save_energy_to_csv(result, energy):
     row = {
         "timestamp": result["timestamp"],
         "implementation": result["implementation"],
+        "seed": result["seed"],
         "use_static_synapses": result["use_static_synapses"],
         "use_exp_luts": result["use_exp_luts"],
         "N": result["n_neurons"],

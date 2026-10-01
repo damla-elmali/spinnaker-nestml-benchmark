@@ -31,36 +31,12 @@ from pyNN.utility.plotting import Figure, Panel
 
 from pynestml.frontend.pynestml_frontend import generate_spinnaker_target
 from pyNN.random import RandomDistribution
-from pyNN.random import NumpyRNG
-
-
-
 
 from datetime import datetime
 import time
 
 from analyze_sample_profile import analyze_run
 
-import hashlib
-
-CONNECTION_DIR = "/users/elmali/nestml/extras/spinnaker1/topology"
-
-EE_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ee.csv")
-EI_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ei.csv")
-II_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ii.csv")
-IE_CONNECTION_FILE = os.path.join(CONNECTION_DIR, "ie.csv")
-
-USE_SAVED_CONNECTIONS = True
-
-def spike_fingerprint(spike_trains):
-    data = []
-
-    for train in spike_trains:
-        data.extend(np.asarray(train, dtype=np.float64))
-
-    return hashlib.sha256(
-        np.asarray(data, dtype=np.float64).tobytes()
-    ).hexdigest()
 
 
 # get results before test after plot codes  first plot and then test
@@ -75,50 +51,7 @@ def spike_fingerprint(spike_trains):
 
 # Keep False until the built-in STDP implementation
 # is confirmed.
-def save_projection_connections(filename, projection):
 
-    connections = projection.get("weight", format="list",
-        with_address=True
-    )
-
-    with open(filename, "w", newline="") as csv_file:
-
-        writer = csv.writer(csv_file)
-
-        writer.writerow([
-            "source",
-            "target"
-        ])
-
-        for source, target, weight in connections:
-
-            writer.writerow([
-                int(source),
-                int(target),
-            ])
-
-    print(f"Saved {len(connections)} connections to {filename}")
-
-
-def load_projection_connections(filename):
-
-    connections = []
-
-    with open(filename, "r", newline="") as csv_file:
-
-        reader = csv.DictReader(csv_file)
-
-        for row in reader:
-
-            connections.append([
-                int(row["source"]),
-                int(row["target"])
-            ])
-
-    return np.asarray(
-        connections,
-        dtype=np.float64
-    )
 
 def compute_cv(spike_train):
     """
@@ -249,7 +182,7 @@ def save_results_to_csv(results):
     filename = "benchmark_balanced_networks_results.csv"
 
 
-    fieldnames = ["timestamp", "implementation", "seed", "use_static_synapses", "use_exp_luts","N", "g", "p_conn", "rate_ext_input", "neurons_per_core", "poisson_generators_per_core", "t_sim",
+    fieldnames = ["timestamp", "implementation","use_static_synapses", "use_exp_luts","N", "g", "p_conn", "rate_ext_input", "neurons_per_core", "poisson_generators_per_core", "t_sim",
         "exc_firing_rate", "inh_firing_rate", "cv", "execution_time"]
 
     file_exists = os.path.isfile(filename)
@@ -269,7 +202,6 @@ def save_results_to_csv(results):
             row = {
                 "timestamp": result["timestamp"],
                 "implementation": result["implementation"],
-                "seed": result["seed"],
                 "use_static_synapses": result["use_static_synapses"],
                 "use_exp_luts": result["use_exp_luts"],
                 "N": result["n_neurons"],
@@ -405,7 +337,7 @@ class TestSpiNNakerBalancedNetwork:
         t_sim = 1000    # total time to simulator for [ms]
         p_conn = .1    # connection probability
         rate_ext_input = 50.    # external input rate (eta parameter) [s⁻¹]
-        n_neurons = int(os.environ.get("N_NEURONS", "128"))
+        n_neurons = 256
         n_exc = int(round(n_neurons * 0.8))
         n_inh = int(round(n_neurons * 0.2))
         g = 10.    # the ratio between excitation and inhibition
@@ -417,31 +349,6 @@ class TestSpiNNakerBalancedNetwork:
         p.setup(timestep=1.0)
         p.reset()
         p.set_number_of_neurons_per_core(p.SpikeSourcePoisson, poisson_generators_per_core)
-
-        # rng_ee = NumpyRNG(seed_value=87354762)
-        # rng_ei = NumpyRNG(seed_value=87354763)
-        # rng_ii = NumpyRNG(seed_value=87354764)
-        # rng_ie = NumpyRNG(seed_value=87354765)
-
-        # rng_v_exc = p.NativeRNG(seed_value=98497628) 
-        # rng_v_inh = p.NativeRNG(seed_value=98497629) 
-        
-        # print("\n === CHECK RNG SEEDS ===")
-        # print("Native RNG EE seed =", rng_ee)
-        # print("Native RNG EI seed =", rng_ei)
-        # print("Native RNG II seed =", rng_ii)
-        # print("Native RNG IE seed =", rng_ie)
-
-        # rng_test_1 = p.NativeRNG(seed_value=87354762)
-        # rng_test_2 = p.NativeRNG(seed_value=87354762)
-
-        # values_1 = rng_test_1.next(10)
-        # values_2 = rng_test_2.next(10)
-
-        # print("RNG 1:", values_1)
-        # print("RNG 2:", values_2)
-        # print("Same:", np.array_equal(values_1, values_2))
-
 
         if use_nestml_neuron:
             neuron_model = iaf_psc_exp_neuron_nestml
@@ -511,28 +418,19 @@ class TestSpiNNakerBalancedNetwork:
         Wmin_inh = 0.0
         Wmax_inh = abs(weight_inh) * 2.0
 
-        seed = int(os.environ.get("SEED", "1"))
 
+    
         # excitatory and inhibitory populations
-        pop_exc = p.Population(n_exc, neuron_model, label="Excitatory", seed=seed, additional_parameters={"max_atoms_per_core": neurons_per_core})
-        pop_inh = p.Population(n_inh, neuron_model, label="Inhibitory", seed=seed+1, additional_parameters={"max_atoms_per_core": neurons_per_core})
-
-        # print("\n===CHECK POPULATION SEEDS ===")
-        # print("SEED =", seed)
-        # print("Exc population seed =", seed)
-        # print("Inh population seed =", seed + 1)
-
+        pop_exc = p.Population(n_exc, neuron_model, label="Excitatory", seed=1, additional_parameters={"max_atoms_per_core": neurons_per_core})
+        pop_inh = p.Population(n_inh, neuron_model, label="Inhibitory", seed=2, additional_parameters={"max_atoms_per_core": neurons_per_core})
+            
         pop_exc.set(**neuron_parameters)
         pop_inh.set(**neuron_parameters)
 
 
         # external stimulus to exc and inh populations
-        stim_exc = p.Population(n_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": seed + 2})
-        stim_inh = p.Population(n_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Inh", additional_parameters={"seed": seed + 3})
-
-        # print("\n=== CHECK POISSON SEEDS ===")
-        # print("Stim Exc seed =", seed + 2)
-        # print("Stim Inh seed =", seed + 3)
+        stim_exc = p.Population(n_exc, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Exc", additional_parameters={"seed": 3})
+        stim_inh = p.Population(n_inh, p.SpikeSourcePoisson(rate=rate_ext_input), label="Stim_Inh", additional_parameters={"seed": 4})
 
         p.Projection(stim_exc, pop_exc, p.OneToOneConnector(), p.StaticSynapse(weight=weight_input, delay=1.), receptor_type=receptor_name_exc)
         p.Projection(stim_inh, pop_inh, p.OneToOneConnector(), p.StaticSynapse(weight=weight_input, delay=1.), receptor_type=receptor_name_exc)
@@ -551,62 +449,6 @@ class TestSpiNNakerBalancedNetwork:
         weights_inh = weight_inh
         #conn_inh = p.FixedProbabilityConnector(p_conn)
 
-        if (
-            USE_SAVED_CONNECTIONS
-            and os.path.exists(EE_CONNECTION_FILE)
-            and os.path.exists(EI_CONNECTION_FILE)
-            and os.path.exists(II_CONNECTION_FILE)
-            and os.path.exists(IE_CONNECTION_FILE)
-        ):
-
-            ee_connections = load_projection_connections(
-                EE_CONNECTION_FILE
-            )
-
-            ei_connections = load_projection_connections(
-                EI_CONNECTION_FILE
-            )
-
-            ii_connections = load_projection_connections(
-                II_CONNECTION_FILE
-            )
-
-            ie_connections = load_projection_connections(
-                IE_CONNECTION_FILE
-            )
-
-            connector_ee = p.FromListConnector(
-                ee_connections
-            )
-
-            connector_ei = p.FromListConnector(
-                ei_connections
-            )
-
-            connector_ii = p.FromListConnector(
-                ii_connections
-            )
-
-            connector_ie = p.FromListConnector(
-                ie_connections
-            )
-
-            print("Loaded saved connections:")
-            print("EE:", len(ee_connections))
-            print("EI:", len(ei_connections))
-            print("II:", len(ii_connections))
-            print("IE:", len(ie_connections))
-
-        else:
-
-            connector_ee = p.FixedProbabilityConnector(p_conn)
-            connector_ei = p.FixedProbabilityConnector(p_conn)
-            connector_ii = p.FixedProbabilityConnector(p_conn)
-            connector_ie = p.FixedProbabilityConnector(p_conn)
-
-            print("Generated new connections with FixedProbabilityConnector")
-
-
         # STDP synapses
         if use_nestml_synapse:
             stdp_ie = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
@@ -620,10 +462,8 @@ class TestSpiNNakerBalancedNetwork:
 
                 print("STDP VARIABLES:")
                 print(stdp_ee._nestml_model_variables)
-                print(stdp_ei._nestml_model_variables)
 
                 stdp_ee._nestml_model_variables["lambda"] = learning_rate
-                stdp_ei._nestml_model_variables["lambda"] = learning_rate
 
                 # for stdp_model in [stdp_ee, stdp_ei, stdp_ie, stdp_ii]:
                 #     stdp_model._nestml_model_variables["lambda"] = learning_rate
@@ -632,12 +472,12 @@ class TestSpiNNakerBalancedNetwork:
                 #     stdp_model._nestml_model_variables["Wmin"] = Wmin_exc
                 #     stdp_model._nestml_model_variables["Wmax"] = Wmax_exc
                 print("STDP lambda:", stdp_ee._nestml_model_variables["lambda"])
-                print("STDP lambda:", stdp_ei._nestml_model_variables["lambda"])
+
             # Recurrent projections
-            projection_ee=p.Projection(pop_exc, pop_exc, connector_ee, synapse_type=stdp_ee, receptor_type=receptor_name_exc)
-            projection_ei=p.Projection(pop_exc, pop_inh, connector_ei, synapse_type=stdp_ei, receptor_type=receptor_name_exc)
-            projection_ii=p.Projection(pop_inh, pop_inh, connector_ii, synapse_type=stdp_ii, receptor_type=receptor_name_inh)
-            projection_ie=p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=stdp_ie, receptor_type=receptor_name_inh)
+            projection_ee=p.Projection(pop_exc, pop_exc, p.FixedProbabilityConnector(p_conn), synapse_type=stdp_ee, receptor_type=receptor_name_exc)
+            projection_ei=p.Projection(pop_exc, pop_inh, p.FixedProbabilityConnector(p_conn), synapse_type=stdp_ei, receptor_type=receptor_name_exc)
+            projection_ii=p.Projection(pop_inh, pop_inh, p.FixedProbabilityConnector(p_conn), synapse_type=stdp_ii, receptor_type=receptor_name_inh)
+            projection_ie=p.Projection(pop_inh, pop_exc, p.FixedProbabilityConnector(p_conn), synapse_type=stdp_ie, receptor_type=receptor_name_inh)
 
         else: 
             # Built-in additive STDP
@@ -672,108 +512,32 @@ class TestSpiNNakerBalancedNetwork:
 
             synapse_inh = p.StaticSynapse(weight=np.abs(weights_inh), delay=delays_inh)
 
-            projection_ee=p.Projection(pop_exc, pop_exc, connector_ee, synapse_type=synapse_exc, receptor_type=receptor_name_exc)
-            projection_ei=p.Projection(pop_exc, pop_inh, connector_ei, synapse_type=synapse_exc, receptor_type=receptor_name_exc)
-            projection_ii=p.Projection(pop_inh, pop_inh, connector_ii, synapse_type=synapse_inh, receptor_type=receptor_name_inh)
-            projection_ie=p.Projection(pop_inh, pop_exc, connector_ie, synapse_type=synapse_inh, receptor_type=receptor_name_inh)
+            projection_ee=p.Projection(pop_exc, pop_exc, p.FixedProbabilityConnector(p_conn), synapse_type=synapse_exc, receptor_type=receptor_name_exc)
+            projection_ei=p.Projection(pop_exc, pop_inh, p.FixedProbabilityConnector(p_conn), synapse_type=synapse_exc, receptor_type=receptor_name_exc)
+            projection_ii=p.Projection(pop_inh, pop_inh, p.FixedProbabilityConnector(p_conn), synapse_type=synapse_inh, receptor_type=receptor_name_inh)
+            projection_ie=p.Projection(pop_inh, pop_exc, p.FixedProbabilityConnector(p_conn), synapse_type=synapse_inh, receptor_type=receptor_name_inh)
+
 
 
         # Initial membrane potentials
         if use_nestml_neuron:
-            # pop_exc.initialize(V_m=RandomDistribution("uniform", (-65.0, -55.0), rng=rng_v_exc))
-            # pop_inh.initialize(V_m=RandomDistribution("uniform", (-65.0, -55.0), rng=rng_v_inh))
-            pop_exc.initialize(V_m=-60.0)
-            pop_inh.initialize(V_m=-60.0)
-
+            pop_exc.initialize(V_m=RandomDistribution("uniform", low=-65.0, high=-55.0))
+            pop_inh.initialize(V_m=RandomDistribution("uniform", low=-65.0, high=-55.0))
         else:
-            # pop_exc.initialize(v=RandomDistribution("uniform", (-65.0, -55.0), rng=rng_v_exc))
-            # pop_inh.initialize(v=RandomDistribution("uniform", (-65.0, -55.0), rng=rng_v_inh))
-            pop_exc.initialize(v=-60.0)
-            pop_inh.initialize(v=-60.0)
-
-        # # Gives error
-        # print("\n=== CHECK INITIAL V ===")
-
-        # if use_nestml_neuron:
-            # print("Exc V:", pop_exc.get("V_m")[:10])
-            # print("Inh V:", pop_inh.get("V_m")[:10])
-        # else:
-            # print("Exc v:", pop_exc.get("v")[:10])
-            # print("Inh v:", pop_inh.get("v")[:10])
+            pop_exc.initialize(v=RandomDistribution("uniform", low=-65.0, high=-55.0))
+            pop_inh.initialize(v=RandomDistribution("uniform", low=-65.0, high=-55.0))
 
         # Recording
         pop_exc[:5].record([membranePot])    # record only from the first 5 neurons
         pop_inh.record("spikes")
         pop_exc.record("spikes")
 
-        stim_exc.record("spikes")
-        stim_inh.record("spikes")
-
 
         w_ref = projection_ee.get("weight", format="float")
 
-        
         start_time = time.perf_counter()
         p.run(t_sim)
         execution_time = time.perf_counter() - start_time
-
-
-        if not (
-            os.path.exists(EE_CONNECTION_FILE)
-            and os.path.exists(EI_CONNECTION_FILE)
-            and os.path.exists(II_CONNECTION_FILE)
-            and os.path.exists(IE_CONNECTION_FILE)
-        ):
-
-            save_projection_connections(
-                EE_CONNECTION_FILE,
-                projection_ee
-            )
-
-            save_projection_connections(
-                EI_CONNECTION_FILE,
-                projection_ei
-            )
-
-            save_projection_connections(
-                II_CONNECTION_FILE,
-                projection_ii
-            )
-
-            save_projection_connections(
-                IE_CONNECTION_FILE,
-                projection_ie
-            )
-
-        print("\n=== CHECK CONNECTIVITY  ===")
-
-        for name, projection in [
-            ("EE", projection_ee),
-            ("EI", projection_ei),
-            ("II", projection_ii),
-            ("IE", projection_ie),
-        ]:
-            weights = projection.get("weight", format="array")
-
-            print(
-                name,
-                "shape =", weights.shape,
-                "nonzero =", np.count_nonzero(~np.isnan(weights)),
-                "weight_sum =", np.nansum(weights)
-            )
-
-            connections = projection.get(
-                ["weight", "delay"],
-                format="list",
-                with_address=True
-            )
-
-            print(f"\n=== {name} ===")
-            print("Number of connections:", len(connections))
-            print("First 20 connections:")
-
-            for connection in connections[:20]:
-                print(connection)
 
         w_final = projection_ee.get("weight", format="float")    # get the weight at the end of the simulation
         np.testing.assert_allclose(w_ref, w_final)
@@ -796,36 +560,6 @@ class TestSpiNNakerBalancedNetwork:
 
         pop_exc_spikes = pop_exc.get_data("spikes")
         pop_inh_spikes = pop_inh.get_data("spikes")
-
-        stim_exc_spikes = stim_exc.get_data("spikes")
-        stim_inh_spikes = stim_inh.get_data("spikes")
-
-        # print("\n=== CHECK POISSON SPIKES ===")
-
-        # for i, train in enumerate(
-        #     stim_exc_spikes.segments[0].spiketrains[:3]
-        # ):
-        #     print(f"Stim Exc neuron {i}:", np.asarray(train)[:20])
-
-        # for i, train in enumerate(
-        #     stim_inh_spikes.segments[0].spiketrains[:3]
-        # ):
-        #     print(f"Stim Inh neuron {i}:", np.asarray(train)[:20])
-
-
-        print("\n=== CHECK NETWORK SPIKES ===")
-
-        for i, train in enumerate(
-            pop_exc_spikes.segments[0].spiketrains[:3]
-        ):
-            print(f"Exc neuron {i}:", np.asarray(train)[:20])
-
-        for i, train in enumerate(
-            pop_inh_spikes.segments[0].spiketrains[:3]
-        ):
-            print(f"Inh neuron {i}:", np.asarray(train)[:20])
-
-
         v_neuron = pop_exc.get_data(membranePot)
 
 
@@ -839,10 +573,6 @@ class TestSpiNNakerBalancedNetwork:
 
         cv = compute_cv_for_neurons(exc_spike_trains)
 
-        print("Exc spike fingerprint:",spike_fingerprint(pop_exc_spikes.segments[0].spiketrains))
-        print("Inh spike fingerprint:",spike_fingerprint(pop_inh_spikes.segments[0].spiketrains))
-
-
         # Timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -855,7 +585,6 @@ class TestSpiNNakerBalancedNetwork:
         return {
             "implementation": implementation,
             "timestamp": timestamp,
-            "seed": seed,
             "use_static_synapses": use_static_synapses,
             "use_exp_luts": use_exp_luts,
 

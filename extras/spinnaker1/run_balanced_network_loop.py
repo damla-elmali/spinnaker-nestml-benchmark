@@ -12,9 +12,9 @@ TEST_FILE = os.path.join(
     "test_spinnaker_balanced_network.py"
 )
 
-N_NEURONS_VALUES = [256]
-SEED_VALUES = [200]
-N_RUNS = 1
+N_NEURONS_VALUES = [128, 256, 512]
+SEED_VALUES = [100, 200, 300]
+N_RUNS = 5
 
 
 def prepare_spinnaker_directories():

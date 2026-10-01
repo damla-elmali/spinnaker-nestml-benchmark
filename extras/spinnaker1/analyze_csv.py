@@ -1,176 +1,306 @@
-import csv
-import statistics
-import matplotlib.pyplot as plt
+import pandas as pd
+import os
 
 
-CSV_FILE = "/users/elmali/nestml/benchmark_balanced_networks_profiling.csv"
+BASE_DIR = "/users/elmali/nestml"
+
+RESULTS_CSV = os.path.join(
+    BASE_DIR,
+    "benchmark_balanced_networks_results.csv"
+)
+
+PROFILING_CSV = os.path.join(
+    BASE_DIR,
+    "benchmark_balanced_networks_profiling.csv"
+)
+
+ENERGY_CSV = os.path.join(
+    BASE_DIR,
+    "benchmark_balanced_networks_energy.csv"
+)
 
 
-def load_data():
-    with open(CSV_FILE, "r", newline="") as csv_file:
-        reader = csv.DictReader(csv_file)
-        data = list(reader)
+CONFIG_COLUMNS = [
+    "implementation",
+    "use_static_synapses",
+    "use_exp_luts",
+    "N",
+    "g",
+    "p_conn",
+    "rate_ext_input",
+    "neurons_per_core",
+    "poisson_generators_per_core",
+    "t_sim",
+]
 
-    print(f"Loaded {len(data)} rows.")
-    print("Columns:")
-    print(reader.fieldnames)
 
-    return data
+def get_statistics(values):
+
+    return {
+        "mean": values.mean(),
+        "median": values.median(),
+        "std": values.std(),
+        "variance": values.var(),
+        "min": values.min(),
+        "max": values.max(),
+    }
 
 
-def analyze_runs(data):
+def analyze_results():
 
-    metrics = [
-        "exc_firing_rate",
-        "inh_firing_rate",
-        "cv",
-        "execution_time"
-    ]
+    df = pd.read_csv(RESULTS_CSV)
 
-    groups = {}
+    rows_per_seed = []
+    rows_per_N = []
 
-    # Group by N, seed and implementation
-    for row in data:
+    # N + seed + configuration
+    for group_values, group in df.groupby(
+        CONFIG_COLUMNS + ["seed"],
+        dropna=False
+    ):
 
-        key = (
-            int(row["N"]),
-            int(row["seed"]),
-            row["implementation"],
-            row["use_exp_luts"]
+        row = dict(
+            zip(
+                CONFIG_COLUMNS + ["seed"],
+                group_values
+            )
         )
 
-        if key not in groups:
-            groups[key] = []
+        runs = group["execution_time"]
 
-        groups[key].append(row)
+        row["number_of_runs"] = len(runs)
 
-    results = []
+        stats = get_statistics(runs)
 
-    for key, rows in groups.items():
+        for name, value in stats.items():
+            row[f"execution_time_{name}"] = value
 
-        N, seed, implementation, use_exp_luts = key
+        rows_per_seed.append(row)
 
-        result = {
-            "N": N,
-            "seed": seed,
-            "implementation": implementation,
-            "use_exp_luts": use_exp_luts,
-            "number_of_runs": len(rows)
-        }
+    # N + configuration
+    for group_values, group in df.groupby(
+        CONFIG_COLUMNS,
+        dropna=False
+    ):
+
+        row = dict(
+            zip(
+                CONFIG_COLUMNS,
+                group_values
+            )
+        )
+
+        runs = group["execution_time"]
+
+        row["number_of_runs"] = len(runs)
+
+        stats = get_statistics(runs)
+
+        for name, value in stats.items():
+            row[f"execution_time_{name}"] = value
+
+        rows_per_N.append(row)
+
+    pd.DataFrame(rows_per_seed).to_csv(
+        os.path.join(
+            BASE_DIR,
+            "benchmark_results_per_seed.csv"
+        ),
+        index=False
+    )
+
+    pd.DataFrame(rows_per_N).to_csv(
+        os.path.join(
+            BASE_DIR,
+            "benchmark_results_per_N.csv"
+        ),
+        index=False
+    )
+
+
+def analyze_profiling():
+
+    df = pd.read_csv(PROFILING_CSV)
+
+    metrics = [
+        "mean_core_activity_percent",
+        "sum_core_activity_percent",
+    ]
+
+    rows_per_seed = []
+    rows_per_N = []
+
+    # N + seed + configuration
+    for group_values, group in df.groupby(
+        CONFIG_COLUMNS + ["seed"],
+        dropna=False
+    ):
+
+        row = dict(
+            zip(
+                CONFIG_COLUMNS + ["seed"],
+                group_values
+            )
+        )
+
+        row["number_of_runs"] = len(group)
 
         for metric in metrics:
 
-            values = [
-                float(row[metric])
-                for row in rows
-            ]
+            stats = get_statistics(
+                group[metric]
+            )
 
-            result[f"{metric}_mean"] = statistics.mean(values)
+            for name, value in stats.items():
+                row[f"{metric}_{name}"] = value
 
-            if len(values) > 1:
-                result[f"{metric}_std"] = statistics.stdev(values)
-                result[f"{metric}_variance"] = statistics.variance(values)
-            else:
-                result[f"{metric}_std"] = 0.0
-                result[f"{metric}_variance"] = 0.0
+        rows_per_seed.append(row)
 
-        results.append(result)
+    # N + configuration
+    for group_values, group in df.groupby(
+        CONFIG_COLUMNS,
+        dropna=False
+    ):
 
-    return results
+        row = dict(
+            zip(
+                CONFIG_COLUMNS,
+                group_values
+            )
+        )
+
+        row["number_of_runs"] = len(group)
+
+        for metric in metrics:
+
+            stats = get_statistics(
+                group[metric]
+            )
+
+            for name, value in stats.items():
+                row[f"{metric}_{name}"] = value
+
+        rows_per_N.append(row)
+
+    pd.DataFrame(rows_per_seed).to_csv(
+        os.path.join(
+            BASE_DIR,
+            "benchmark_profiling_per_seed.csv"
+        ),
+        index=False
+    )
+
+    pd.DataFrame(rows_per_N).to_csv(
+        os.path.join(
+            BASE_DIR,
+            "benchmark_profiling_per_N.csv"
+        ),
+        index=False
+    )
 
 
-def save_run_results(results):
+def analyze_energy():
 
-    filename = "benchmark_run_statistics.csv"
+    df = pd.read_csv(ENERGY_CSV)
 
-    fieldnames = [
-        "N",
-        "seed",
-        "implementation",
-        "use_exp_luts",
-        "number_of_runs",
-
-        "exc_firing_rate_mean",
-        "exc_firing_rate_std",
-        "exc_firing_rate_variance",
-
-        "inh_firing_rate_mean",
-        "inh_firing_rate_std",
-        "inh_firing_rate_variance",
-
-        "cv_mean",
-        "cv_std",
-        "cv_variance",
-
-        "execution_time_mean",
-        "execution_time_std",
-        "execution_time_variance"
+    metrics = [
+        "execution_energy_J",
+        "execution_energy_active_only_J",
+        "execution_energy_ignoring_frame_J",
+        "mapping_time_s",
+        "mapping_energy_J",
+        "data_spec_time_s",
+        "data_spec_energy_J",
+        "saving_time_s",
+        "saving_energy_J",
+        "other_time_s",
+        "other_energy_J",
+        "total_energy_J",
     ]
 
-    with open(filename, "w", newline="") as csv_file:
+    rows_per_seed = []
+    rows_per_N = []
 
-        writer = csv.DictWriter(
-            csv_file,
-            fieldnames=fieldnames
+    # N + seed + configuration
+    for group_values, group in df.groupby(
+        CONFIG_COLUMNS + ["seed"],
+        dropna=False
+    ):
+
+        row = dict(
+            zip(
+                CONFIG_COLUMNS + ["seed"],
+                group_values
+            )
         )
 
-        writer.writeheader()
+        row["cores_used"] = group["cores_used"].iloc[0]
+        row["active_cores"] = group["active_cores"].iloc[0]
 
-        for result in results:
-            writer.writerow(result)
+        row["number_of_runs"] = len(group)
 
-    print(f"\nSaved: {filename}")
+        for metric in metrics:
 
+            stats = get_statistics(
+                group[metric]
+            )
 
-def print_results(results):
+            for name, value in stats.items():
+                row[f"{metric}_{name}"] = value
 
-    print("\n=== RUN ANALYSIS ===\n")
+        rows_per_seed.append(row)
 
-    for result in results:
+    # N + configuration
+    for group_values, group in df.groupby(
+        CONFIG_COLUMNS,
+        dropna=False
+    ):
 
-        print(
-            f"N={result['N']} | "
-            f"seed={result['seed']} | "
-            f"{result['implementation']} | "
-            f"runs={result['number_of_runs']}"
+        row = dict(
+            zip(
+                CONFIG_COLUMNS,
+                group_values
+            )
         )
 
-        print(
-            f"  Exc firing rate: "
-            f"{result['exc_firing_rate_mean']:.4f} "
-            f"+/- {result['exc_firing_rate_std']:.4f}"
-        )
+        row["cores_used"] = group["cores_used"].iloc[0]
+        row["active_cores"] = group["active_cores"].iloc[0]
 
-        print(
-            f"  Inh firing rate: "
-            f"{result['inh_firing_rate_mean']:.4f} "
-            f"+/- {result['inh_firing_rate_std']:.4f}"
-        )
+        row["number_of_runs"] = len(group)
 
-        print(
-            f"  CV: "
-            f"{result['cv_mean']:.4f} "
-            f"+/- {result['cv_std']:.4f}"
-        )
+        for metric in metrics:
 
-        print(
-            f"  Execution time: "
-            f"{result['execution_time_mean']:.4f} "
-            f"+/- {result['execution_time_std']:.4f}"
-        )
+            stats = get_statistics(
+                group[metric]
+            )
 
-        print()
+            for name, value in stats.items():
+                row[f"{metric}_{name}"] = value
+
+        rows_per_N.append(row)
+
+    pd.DataFrame(rows_per_seed).to_csv(
+        os.path.join(
+            BASE_DIR,
+            "benchmark_energy_per_seed.csv"
+        ),
+        index=False
+    )
+
+    pd.DataFrame(rows_per_N).to_csv(
+        os.path.join(
+            BASE_DIR,
+            "benchmark_energy_per_N.csv"
+        ),
+        index=False
+    )
 
 
 def main():
 
-    data = load_data()
-
-    results = analyze_runs(data)
-
-    print_results(results)
-
-    save_run_results(results)
+    analyze_results()
+    analyze_profiling()
+    analyze_energy()
 
 
 if __name__ == "__main__":
